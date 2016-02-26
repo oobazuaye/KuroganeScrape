@@ -3,6 +3,7 @@ from lxml import html
 from collections import Counter
 import requests
 import random
+DEBUG = False
 
 directions = ["F", "U", "D", "B"]
 jabs = ["Jab " + str(num) for num in range(1,4)] + ["Jab", "Rapid Jab", "Rapid Jab Finisher"]
@@ -18,10 +19,13 @@ throws = [direction + "throw" for direction in directions]
 dodges = ["Spotdodge", "Forward Roll", "Back Roll", "Airdodge"]
 
 all_moves = attacks + grabs + throws + dodges
-print attacks
+all_groundmove_types = ["Jab", "Attack", "tilt", "smash"]
+all_move_types = ["Jab", "tilt", "smash", "air", "Attack", "Dash", "Rapid", "Grab", "throw", "dodge", "Roll"]
+if DEBUG: print attacks
 
 #TODO: They spelled "dependent" wrong on Kirby's page.
 
+#Simple class structures for storing frame data for moves
 class GroundMove:
     def __init__(self, name, hitbox, faf, base_dmg, angle, bkb_wbkb, kbg):
         self.name = name
@@ -78,24 +82,29 @@ class Moveset:
         self.throws = []
         self.dodges = []
         
+        
     def addMove(self, move):
-        if moveType(move) == "GroundMove":
+        if className(move) == "GroundMove":
             if "Jab" in move.name: self.jabs.append(move)
             elif "Dash" in move.name: self.dash_attacks.append(move)
             elif "tilt" in move.name: self.tilts.append(move)
             elif "smash" in move.name: self.smashes.append(move)
-            else: print "ERROR!!! invalid ground move"
-        elif moveType(move) == "Aerial": self.aerials.append(move)
-        elif moveType(move) == "Grab": self.grabs.append(move)
-        elif moveType(move) == "Throw": self.throws.append(move)
-        elif moveType(move) == "Dodge": self.dodges.append(move)
-        elif moveType(move) == "list": print "ignoring empty data..."
-        else: print "ERROR!!! invalid move"
-            
-def moveType(move_instance):
-    return move_instance.__class__.__name__
+            else: raise ValueError("ERROR!!! invalid ground move")
+        elif className(move) == "Aerial": self.aerials.append(move)
+        elif className(move) == "Grab": self.grabs.append(move)
+        elif className(move) == "Throw": self.throws.append(move)
+        elif className(move) == "Dodge": self.dodges.append(move)
+        elif className(move) == "list":
+            if DEBUG: print "ignoring empty data..."
+        else: raise ValueError("ERROR!!! invalid move")
+
+
+def className(instance):
+    ''' Returns class name of object as string'''
+    return instance.__class__.__name__
 
 def get_pages():
+    '''Gets all character names and URLs from the kuroganehammer smash4 site'''
     page = requests.get('http://kuroganehammer.com/Smash4/')
     root = html.fromstring(page.content)
     html_scrape = etree.HTML(page.content)
@@ -103,7 +112,7 @@ def get_pages():
     stuff = root.xpath('//a')
     characters = [element.attrib['alt'] for element in root.xpath('//img')][1:-1]
     characters.remove("Mii Fighters")
-    #TODO: Something about Mii fighter
+    #TODO: Something about Mii fighter...links to multiple pages
     pages = ['http://kuroganehammer.com' + element.attrib['href'] for element in root.xpath('//tbody//td//a') if element.attrib['href'] != '/Smash4/Mii']
     #print characters
     #print pages
@@ -111,6 +120,8 @@ def get_pages():
     return characters, pages
 
 def get_frame_data(url):
+    '''Takes a given character URL with frame data, and returns
+        moveset and frame data as arrays of strings'''
     page = requests.get(url)
     root = html.fromstring(page.content)
     frame_data = root.xpath('//table[@id != "AutoNumber3"]')[1:]
@@ -119,7 +130,8 @@ def get_frame_data(url):
     clean_frame_data = trim_frame_data(frame_data)
     moveset = root.xpath('//th')
     moveset = [element.text_content() for element in moveset]
-    for x in frame_data: print x
+    if DEBUG:
+        for x in frame_data: print x
     #clean_movset = [k for k,v in Counter(moveset).items() if v==1]
     clean_moveset = get_moveset(moveset)
     return clean_moveset, clean_frame_data
@@ -127,6 +139,7 @@ def get_frame_data(url):
     #for x in clean_moveset: print x
 
 def get_moveset(moves):
+    '''Used for stripping non-move words from scraped page'''
     terms_to_remove = ["Statistic", "Value/Rank", "Attacks",
               'Hitbox Active', 'FAF', 'Angle',
               'BKB/WBKB', 'KBG', 'BKB', 'Base Dmg.',
@@ -146,42 +159,71 @@ def get_moveset(moves):
         if counter_to_special_moves == 3:
         #Return once we're at the special moves section
             return moveset
-    print "Shouldn't reach here..."
+    #print "Shouldn't reach here..."
     return moveset
 
 def isMove(datum):
-    for move in all_moves:
+    for move in all_move_types:
         if move in datum and datum[0].isdigit() is False: return True
-    print datum
+    if DEBUG: print datum
     return False
 
 def isDodge(datum):
-    if datum in dodges: return True
+    #if datum in dodges: return True
+    if "dodge" in datum or "Roll" in datum: return True
     else: return False
 
 def isGrab(datum):
-    if datum in grabs: return True
+    #if datum in grabs: return True
+    if "Grab" in datum: return True
+    else: return False
+
+def isThrow(datum):
+    if "throw" in datum: return True
+    else: return False
+    
+def isGroundMove(datum):
+    for move in all_groundmove_types:
+        if move in datum: return True
+    return False
+
+def isAerial(datum):
+    if "air" in datum: return True
     else: return False
     
 def parse_frame_data(character_name, frame_data):
+    '''Goes through an clean array of frame data strings and parses it
+        into objects for the respective move type, and pushes them to
+        a Moveset object. Returns the final Moveset object'''
     move_data = []
     move_name = ""
-    allMoves = Moveset(character_name)
+    
+    #Create a moveset object for the given character
+    allMoves = Moveset(character_name) 
     for datum in frame_data:
+        #Iterate through frame data, and once a move name has been found,
+        # starts collecting the following data until
+        # another move name has been found. The collected move data
+        # is then put into an appropriate Move object, based on
+        # amount of data collected and a check of the move name
         if isMove(datum):
             newMove = []
             data_len = len(move_data)
             if data_len == 0: print "Starting data parsing..."
             elif data_len == 3 and isGrab(move_name): newMove = Grab(*move_data)
             elif (data_len == 3 and isDodge(move_name)) or data_len == 4: newMove = Dodge(*move_data)
-            elif data_len == 6: newMove = Throw(*move_data)
-            elif data_len == 7: newMove = GroundMove(*move_data)
-            elif data_len == 9: newMove = Aerial(*move_data)
+            elif data_len == 6 and isThrow(move_name): newMove = Throw(*move_data)
+            elif data_len == 7 and isGroundMove(move_name): newMove = GroundMove(*move_data)
+            elif data_len == 9 and isAerial(move_name): newMove = Aerial(*move_data)
             else:
-                print "ERROR!!!! invalid amount of frame data for move. counted", data_len, "data strings!"
+                raise ValueError("ERROR!!!! invalid amount of frame data for" +
+                                 move_name +
+                                 ". counted " +
+                                 str(data_len) +
+                                 " data strings!")
                 return allMoves
             allMoves.addMove(newMove)
-            print "Added " + "nothing" if data_len == 0 else move_data[0] + ", now parsing", datum
+            if DEBUG: print "Added " + "nothing" if data_len == 0 else move_name + ", now parsing", datum
             move_name = datum
             move_data = [datum]
         else:
@@ -189,15 +231,24 @@ def parse_frame_data(character_name, frame_data):
     return allMoves
 
 def trim_frame_data(raw_frame_data):
+    '''Takes scraped HTML page and cuts out all empty strings.
+        Also replaces the unfortunate blank spaces in some pages'
+        Rapid Jab frame data with question marks'''
     new_frame_data = []
     stripped_data = []
     clean_stripped_data = []
     for data in raw_frame_data:
+        #split data by newlines, and strip html tags
         new_data = [item.strip() for item in data.split('\r\n')]
         stripped_data += new_data
-    print "PRINTING STRIPPED DATA..."
-    print stripped_data
-    print "\n\n\n"
+    if DEBUG:
+        print "PRINTING STRIPPED DATA..."
+        print stripped_data
+        print "\n\n\n"
+    #The following for loop is for replacing the
+    # empty frame data for some characters' Rapid Jabs
+    # with '?', so that the amount of data per attack (6 strings)
+    # stays consistent
     replace_empty = False
     rapid_jab_data_counter = 0
     for datum in stripped_data:
@@ -211,10 +262,11 @@ def trim_frame_data(raw_frame_data):
             if rapid_jab_data_counter > 6:
                 replace_empty = False
         clean_stripped_data.append("?" if replace_empty and datum == "" else datum)
-    new_frame_data = filter(None, clean_stripped_data)
-    print "PRINTING CLEAN STRIPPED DATA..."
-    print new_frame_data
-    print "\n\n\n"
+    new_frame_data = filter(None, clean_stripped_data) #Remove all empty strings
+    if DEBUG:
+        print "PRINTING CLEAN STRIPPED DATA..."
+        print new_frame_data
+        print "\n\n\n"
     
     return get_moveset(new_frame_data)
 
