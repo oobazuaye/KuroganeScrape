@@ -184,16 +184,24 @@ def className(instance):
     return instance.__class__.__name__
 
 def get_pages():
-    '''Gets all character names and URLs from the kuroganehammer smash4 site'''
-    page = requests.get('http://kuroganehammer.com/Smash4/')
-    root = html.fromstring(page.content)
-    html_scrape = etree.HTML(page.content)
-    result = etree.tostring(html_scrape, pretty_print=True, method="html")
-    stuff = root.xpath('//a')
+    main_page = requests.get('http://kuroganehammer.com/Smash4/')
+    root = html.fromstring(main_page.content)
+    #code for pretty printing
+    #html_scrape = etree.HTML(main_page.content)
+    #result = etree.tostring(html_scrape, pretty_print=True, method="html")
     characters = [element.attrib['alt'] for element in root.xpath('//img')][1:-1]
     characters.remove("Mii Fighters")
-    #TODO: Something about Mii fighter...links to multiple pages
-    pages = ['http://kuroganehammer.com' + element.attrib['href'] for element in root.xpath('//tbody//td//a') if element.attrib['href'] != '/Smash4/Mii']
+    pages = ['http://kuroganehammer.com' + element.attrib['href'] for element in root.xpath('//tbody//td//a')]
+    pages.remove('http://kuroganehammer.com/Smash4/Mii')
+
+    #Current solution for Mii Fighter page redirect, may need to be changed if Mii fighter page changes
+    mii_page = requests.get('http://kuroganehammer.com/Smash4/Mii')
+    mii_root = html.fromstring(mii_page.content)
+    mii_characters = [element.text_content() for element in mii_root.xpath('//a') if "Mii" in element.text_content()]
+    mii_pages = ['http://kuroganehammer.com' + element.attrib['href'] for element in root.xpath('//h1//a')]
+
+    characters += mii_characters
+    pages += mii_pages
     #print characters
     #print pages
     #print result
