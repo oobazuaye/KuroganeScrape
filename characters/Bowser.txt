@@ -1,0 +1,769 @@
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Bowser - Kurogane Hammer</title>
+        <link rel="stylesheet" type="text/css" href="/kurogane.css" title="Default">
+    
+        
+    <link href="/character.css" rel="stylesheet" type="text/css">
+
+        <!-- le Google Analytics code -->
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+          ga('create', 'UA-49512061-1', 'kuroganehammer.com');
+          ga('send', 'pageview');
+    
+        </script>
+        <!-- end le Google Analytics code -->
+    <script type="text/javascript">var NREUMQ=NREUMQ||[];NREUMQ.push(["mark","firstbyte",new Date().getTime()]);</script>
+</head>
+    <body>
+        <header>
+            <ul>
+                <li>
+                    <a href="/">Home</a>
+                </li>
+                <li>
+                    <a href="/Smash4">Smash 4</a>
+                </li>
+                <li>
+                    <a href="/Smash4/Attributes">Character Attributes</a>
+                </li>
+                <li>
+                    <a href="/AboutUs">About Us</a>
+                </li>
+                  <li>
+                    <a href="/Glossary">Glossary</a>
+                </li>
+            </ul>
+        </header>
+
+             <script>
+    document.body.className = 'bowser';
+    </script>
+    <div>
+        <div style="text-align: center">
+            <br>
+            <img alt="Bowser" src="http://kuroganehammer.com/Smash4/logo2/Bowser.png">
+            <h1>Bowser's Frame Data [1.1.4]</h1>
+<br>
+        </div>
+    </div>
+    <table id="AutoNumber1" style="width: 600px; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="font-weight: bold">Statistic</th>
+                <th style="font-weight: bold">Value/Rank</th>
+                <th style="font-weight: bold">Statistic</th>
+                <th style="font-weight: bold">Value/Rank</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="font-weight: bold">
+                    <a href="/Smash4/Weight">Weight</a>
+                </td>
+                <td>128 [1st]</td>
+                <td style="font-weight: bold">Max Jumps</td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    <a href="/Smash4/DashSpeed">Run Speed</a>
+                </td>
+                <td>1.792 [17th]</td>
+                <td style="font-weight: bold">Wall Jump</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    <a href="/Smash4/WalkSpeed">Walk Speed</a>
+                </td>
+                <td>0.858 [51st]</td>
+                <td style="font-weight: bold">Wall Cling</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    <a href="/Smash4/AirSpeed">Air Speed</a>
+                </td>
+                <td>0.98 [33rd]</td>
+                <td style="font-weight: bold">Crawl</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    <a href="/Smash4/FallSpeed">Fall Speed</a>
+                </td>
+                <td>1.39 [41st]</td>
+                <td style="font-weight: bold">Tether</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    <a href="/Smash4/FallSpeed">Fast Fall Speed</a>
+                </td>
+                <td>2.224 [41st]</td>
+                <td style="font-weight: bold">Jumpsquat</td>
+                <td>8 frames</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">
+                    <a href="/Smash4/AirAcceleration">Air Acceleration</a>
+                </td>
+                <td>0.04</td>
+                <td style="font-weight: bold">Soft Landing Lag</td>
+                <td>2 frames</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">Gravity</td>
+                <td>0.11</td>
+                <td style="font-weight: bold">Hard Landing Lag</td>
+                <td>6 frames</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold">SH Air Time</td>
+                <td>34 frames</td>
+                <td style="font-weight: bold">FH Air Time</td>
+                <td>54 frames</td>
+            </tr>
+        </tbody>
+    </table>
+<br>
+    <br>
+    <br>
+    <h2>Section 1 / Frame Data</h2>
+<br>
+    <br>
+    <div style="padding-left: 160px">
+        <h3>1.1 Ground Moves</h3>
+    </div>
+<br>
+    <table id="AutoNumber1" style="width: 1250px; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="font-style: italic">Attacks</th>
+                <th style="font-weight: bold">Hitbox Active</th>
+                <th style="font-weight: bold">FAF</th>
+                <th style="font-weight: bold">Base Dmg.</th>
+                <th style="font-weight: bold">Angle</th>
+                <th style="font-weight: bold">BKB/WBKB</th>
+                <th style="font-weight: bold">KBG</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th style="font-weight: bold">Jab 1</th>
+                <td>7-9 (Arm Intangible: 7-9)</td>
+                <td>21</td>
+                <td>5</td>
+                <td>30/50/85</td>
+                <td>W: 45/30/18</td>
+                <td>100</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Jab 2</th>
+                <td>9-11 (Arm Intangible: 9-11)</td>
+                <td>26</td>
+                <td>6.5</td>
+                <td>361</td>
+                <td>50</td>
+                <td>100</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dash Attack</th>
+                <td>11-14</td>
+                <td>56</td>
+                <td>12 (+1)</td>
+                <td>80</td>
+                <td>110</td>
+                <td>35</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dash Attack (Late)</th>
+                <td>15-20</td>
+                <td>-</td>
+                <td>10 (+1)</td>
+                <td>80</td>
+                <td>80</td>
+                <td>30</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Ftilt (All Angles)</th>
+                <td>10-14 (Arm Intangible: 10-14)</td>
+                <td>38</td>
+                <td>12</td>
+                <td>361</td>
+                <td>45</td>
+                <td>83</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Utilt</th>
+                <td>11-16 (Arm Intangible: 12-16)</td>
+                <td>41</td>
+                <td>9</td>
+                <td>100</td>
+                <td>55</td>
+                <td>97</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dtilt (Hit 1)</th>
+                <td>10-12 (Arm Intangible: 10-12)</td>
+                <td>46</td>
+                <td>14</td>
+                <td>361</td>
+                <td>20</td>
+                <td>100</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dtilt (Hit 2)</th>
+                <td>20-22 (Arm Intangible: 20-22)</td>
+                <td>-</td>
+                <td>11</td>
+                <td>361</td>
+                <td>12</td>
+                <td>100</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Fsmash</th>
+                <td>22-23 (Legs Intangible: 20-25)</td>
+                <td>70</td>
+                <td>23/20</td>
+                <td>361</td>
+                <td>25</td>
+                <td>98</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Fsmash (Late)</th>
+                <td>24-27 (Cannot Rebound)</td>
+                <td>-</td>
+                <td>17/14</td>
+                <td>361</td>
+                <td>10</td>
+                <td>103</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Usmash</th>
+                <td>16-23 (Shell Invincibility: 14-27, Cannot Rebound)</td>
+                <td>58</td>
+                <td>20/15/15</td>
+                <td>90/70/120</td>
+                <td>23</td>
+                <td>90/100/100</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Usmash (Landing)</th>
+                <td>37 (Ground Only)</td>
+                <td>-</td>
+                <td>6</td>
+                <td>70</td>
+                <td>80</td>
+                <td>100</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dsmash (Hit 1)</th>
+                <td>10</td>
+                <td>72</td>
+                <td>2</td>
+                <td>150</td>
+                <td>W: 60</td>
+                <td>100</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dsmash (Hit 2-6)</th>
+                <td>14-15, 17-18, 20-21, 23-24, 26-27</td>
+                <td>-</td>
+                <td>1</td>
+                <td>150/150/190/190</td>
+                <td>40</td>
+                <td>50</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dsmash (Hit 7)</th>
+                <td>31</td>
+                <td>-</td>
+                <td>9</td>
+                <td>48</td>
+                <td>40</td>
+                <td>130</td>
+            </tr>
+            <tr>
+                <th style="font-style: italic">Grabs</th>
+                <th style="font-weight: bold">Hitbox Active</th>
+                <th style="font-weight: bold">FAF</th>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Standing Grab</th>
+                <td>9-10</td>
+                <td>39</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dash Grab</th>
+                <td>10-11</td>
+                <td>48</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Pivot Grab</th>
+                <td>11-12</td>
+                <td>46</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-style: italic">Throws</th>
+                <th style="font-weight: bold">Weight Dependent?</th>
+                <th style="font-weight: bold">Base Dmg.</th>
+                <th>Angle</th>
+                <th>BKB</th>
+                <th>KBG</th>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Fthrow</th>
+                <td>Yes</td>
+                <td>12</td>
+                <td>45</td>
+                <td>60</td>
+                <td>66</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Bthrow</th>
+                <td>Yes</td>
+                <td>12</td>
+                <td>45</td>
+                <td>60</td>
+                <td>66</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Uthrow (Luigi Dthrow Reincarnated)</th>
+                <td>No</td>
+                <td>0.5%&#215;7, 1, 2</td>
+                <td>82</td>
+                <td>25</td>
+                <td>180</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dthrow</th>
+                <td>No</td>
+                <td>10, 2</td>
+                <td>50</td>
+                <td>90</td>
+                <td>50</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-style: italic">Miscellaneous</th>
+                <th style="font-weight: bold">Intangibility</th>
+                <th style="font-weight: bold">FAF</th>
+                <th style="font-weight: bold">Notes</th>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Spotdodge</th>
+                <td>4-19</td>
+                <td>29</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Forward Roll</th>
+                <td>4-19</td>
+                <td>34</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Back Roll</th>
+                <td>4-19</td>
+                <td>34</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Airdodge</th>
+                <td>4-29</td>
+                <td>35</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+<br>
+    <div style="padding-left: 160px">
+        <h3>1.2 Aerial Moves</h3>
+    </div>
+<br>
+    <table id="AutoNumber2" style="width: 1250px; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="font-style: italic">Attacks</th>
+                <th style="font-weight: bold">Hitbox Active</th>
+                <th style="font-weight: bold">FAF</th>
+                <th style="font-weight: bold">Base Dmg.</th>
+                <th style="font-weight: bold">Angle</th>
+                <th style="font-weight: bold">BKB/WBKB</th>
+                <th style="font-weight: bold">KBG</th>
+                <th style="font-weight: bold">Landing Lag</th>
+                <th style="font-weight: bold">Autocancel</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th style="font-weight: bold">Nair (Hit 1)</th>
+                <td>8-29</td>
+                <td>48</td>
+                <td>6</td>
+                <td>75</td>
+                <td>20</td>
+                <td>50</td>
+                <td>20</td>
+                <td>1-3, 45&gt;</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Nair (Hit 2)</th>
+                <td>14-29</td>
+                <td>-</td>
+                <td>6</td>
+                <td>75</td>
+                <td>20</td>
+                <td>100</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Nair (Hit 3)</th>
+                <td>18-29</td>
+                <td>-</td>
+                <td>6</td>
+                <td>75</td>
+                <td>60</td>
+                <td>90</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Nair (Hit 4)</th>
+                <td>18-29</td>
+                <td>-</td>
+                <td>6</td>
+                <td>75</td>
+                <td>60</td>
+                <td>90</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Fair</th>
+                <td>11-14</td>
+                <td>42</td>
+                <td>13/12/11</td>
+                <td>361</td>
+                <td>40</td>
+                <td>80</td>
+                <td>24</td>
+                <td>1-3, 31&gt;</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Bair</th>
+                <td>9-11</td>
+                <td>45</td>
+                <td>19</td>
+                <td>35</td>
+                <td>20</td>
+                <td>88</td>
+                <td>40</td>
+                <td>1-2, 31&gt;</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Uair</th>
+                <td>9-13 (Head Intangible: 3-13)</td>
+                <td>45</td>
+                <td>15</td>
+                <td>85</td>
+                <td>35</td>
+                <td>85</td>
+                <td>28</td>
+                <td>1-2, 40&gt;</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dair (Meteor)</th>
+                <td>17-24</td>
+                <td>78</td>
+                <td>16</td>
+                <td>275</td>
+                <td>30</td>
+                <td>100</td>
+                <td>40</td>
+                <td>1-13, 70&gt;</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dair</th>
+                <td>25-49</td>
+                <td>-</td>
+                <td>16</td>
+                <td>56</td>
+                <td>30</td>
+                <td>100</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dair (Landing)</th>
+                <td>1-3 (Ground Only)</td>
+                <td>-</td>
+                <td>2</td>
+                <td>20</td>
+                <td>60</td>
+                <td>30</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+        </tbody>
+    </table>
+<br>
+    <div style="padding-left: 160px">
+        <h3>1.3 Special Moves</h3>
+    </div>
+<br>
+    <table id="AutoNumber3" style="width: 1250px; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="font-style: italic">Attacks</th>
+                <th style="font-weight: bold">Hitbox Active</th>
+                <th style="font-weight: bold">FAF</th>
+                <th style="font-weight: bold">Base Dmg.</th>
+                <th style="font-weight: bold">Angle</th>
+                <th style="font-weight: bold">BKB/WBKB</th>
+                <th style="font-weight: bold">KBG</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th style="font-weight: bold">Fire Breath</th>
+                <td>23, 30, 37, 44...</td>
+                <td>78</td>
+                <td>1.2</td>
+                <td>55</td>
+                <td>20</td>
+                <td>30</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Fire Breath (Flinchless)</th>
+                <td>28, 35, 42, 49...</td>
+                <td>-</td>
+                <td>1.2</td>
+                <td>65</td>
+                <td>20</td>
+                <td>30</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Flying Slam (Command Grab, Ground)</th>
+                <td>8</td>
+                <td>43</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Flying Slam (Command Grab, Aerial)</th>
+                <td>17</td>
+                <td>50</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Flying Slam (Hitbox)</th>
+                <td>-</td>
+                <td>-</td>
+                <td>18</td>
+                <td>60</td>
+                <td>80</td>
+                <td>60</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Whirling Fortress (Ground)</th>
+                <td>6-38 (Rehit rate: 5)</td>
+                <td>82</td>
+                <td>1</td>
+                <td>180</td>
+                <td>W: 50/70/70</td>
+                <td>100</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Whirling Fortress (Final Hit, Ground)</th>
+                <td>39</td>
+                <td>-</td>
+                <td>4</td>
+                <td>60</td>
+                <td>70</td>
+                <td>150</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Whirling Fortress (Aerial, Hit 1)</th>
+                <td>6-7</td>
+                <td>-</td>
+                <td>10</td>
+                <td>80</td>
+                <td>80</td>
+                <td>60</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Whirling Fortress (Aerial, Hits 2-6)</th>
+                <td>8-11, 12-15, 16-19, 20-23, 24-27</td>
+                <td>-</td>
+                <td>3</td>
+                <td>84</td>
+                <td>50</td>
+                <td>20</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Whirling Fortress (Aerial, Hits 7-11)</th>
+                <td>28-31, 32-25, 36-39, 40-43, 44-47</td>
+                <td>-</td>
+                <td>2</td>
+                <td>84</td>
+                <td>50</td>
+                <td>20</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Bowser Bomb (Hit 1)</th>
+                <td>11</td>
+                <td>-</td>
+                <td>4</td>
+                <td>85</td>
+                <td>W: 90</td>
+                <td>100</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Bowser Bomb (Hit 2)</th>
+                <td>38-</td>
+                <td>-</td>
+                <td>20 (+5)</td>
+                <td>76</td>
+                <td>45</td>
+                <td>75</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Bowser Bomb (Landing)</th>
+                <td>1-2 (Ground Only)</td>
+                <td>56</td>
+                <td>11 (+5)</td>
+                <td>76</td>
+                <td>60</td>
+                <td>72</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Bowser Bomb (Aerial)</th>
+                <td>32-</td>
+                <td>-</td>
+                <td>20 (+5)</td>
+                <td>76</td>
+                <td>45</td>
+                <td>75</td>
+            </tr>
+        </tbody>
+    </table>
+<br>
+    <div style="padding-left: 160px">
+        <h3>1.4 Item Toss</h3>
+    </div>
+<br>
+    <table id="AutoNumber3" style="width: 500px; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="font-weight: bold">Type of Throw</th>
+                <th style="font-style: italic">Item Thrown</th>
+                <th style="font-weight: bold">FAF</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th style="font-weight: bold">Z Drop (Ground)</th>
+                <td>7</td>
+                <td>24</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Forward (Ground)</th>
+                <td>10</td>
+                <td>30</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Back (Ground)</th>
+                <td>13</td>
+                <td>30</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Up (Ground)</th>
+                <td>17</td>
+                <td>30</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Down (Ground)</th>
+                <td>8</td>
+                <td>22</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Dash (Ground)</th>
+                <td>7</td>
+                <td>40</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Forward (Air)</th>
+                <td>10</td>
+                <td>30</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Back (Air)</th>
+                <td>13</td>
+                <td>30</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Up (Air)</th>
+                <td>15</td>
+                <td>30</td>
+            </tr>
+            <tr>
+                <th style="font-weight: bold">Down (Air)</th>
+                <td>8</td>
+                <td>22</td>
+            </tr>
+        </tbody>
+    </table>
+<br>
+    
+</body>
+</html>
