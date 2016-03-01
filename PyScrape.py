@@ -1,29 +1,16 @@
 from lxml import etree
 from lxml import html
-from collections import Counter
 import requests
-import random
 DEBUG = False
+DOWNLOAD = False
+OFFLINE_MODE = False
+characters = []
+pages = []
 
-directions = ["F", "U", "D", "B"]
-jabs = ["Jab " + str(num) for num in range(1,4)] + ["Jab", "Rapid Jab", "Rapid Jab Finisher"]
-tilts = [direction + "tilt" for direction in directions[:-1]]
-smashes = [direction + "smash" for direction in directions[:-1]]
-ground_moves = jabs + tilts + smashes
-aerials = [direction + "air" for direction in directions] + ["Nair"]
-
-attacks = ground_moves + aerials + ["Dash Attack"]
-
-grabs = ["Grab", "Standing Grab", "Dash Grab", "Pivot Grab"]
-throws = [direction + "throw" for direction in directions]
-dodges = ["Spotdodge", "Forward Roll", "Back Roll", "Airdodge"]
-
-all_moves = attacks + grabs + throws + dodges
 all_groundmove_types = ["Jab", "Attack", "tilt", "smash"]
 all_move_types = ["Jab", "tilt", "smash", "air", "Attack", "Dash", "Rapid", "Grab", "throw", "dodge", "Roll"]
-if DEBUG: print attacks
 
-#TODO: They spelled "dependent" wrong on Kirby's page.
+#TODO: They spelled "dependent" wrong on Kirby's page...
 
 #Simple class structures for storing frame data for moves
 class GroundMove:
@@ -183,72 +170,89 @@ def className(instance):
     ''' Returns class name of object as string'''
     return instance.__class__.__name__
 
+def scrapePage(character):
+    ''' Returns the parsed moveset of a given character
+        as a Moveset instance '''
+    frame_data = get_frame_data(pages[characters.index(character)])
+    parsed_moveset = parse_frame_data(character, frame_data)
+    return parsed_moveset
+
+def scrapeAllPages():
+    ''' Returns the parsed movesets for all characters
+        as a dictionary of Moveset instances '''
+    all_movesets = {}
+    for character in characters:
+        char_scrape = scrapePage(character)
+        all_movesets[character] = char_scrape
+    return all_movesets
+    
 def get_pages():
-    main_page = requests.get('http://kuroganehammer.com/Smash4/')
-    root = html.fromstring(main_page.content)
-    #code for pretty printing
-    #html_scrape = etree.HTML(main_page.content)
-    #result = etree.tostring(html_scrape, pretty_print=True, method="html")
-    characters = [element.attrib['alt'] for element in root.xpath('//img')][1:-1]
-    characters.remove("Mii Fighters")
-    pages = ['http://kuroganehammer.com' + element.attrib['href'] for element in root.xpath('//tbody//td//a')]
-    pages.remove('http://kuroganehammer.com/Smash4/Mii')
+    ''' Gets all character names and corresponding URLs from
+        the KuroganeHammer Smash4 homepage, or from a text file
+        if in offline mode '''
+    if OFFLINE_MODE:
+        with open("characters.txt", 'r') as character_file:
+            characters = [character.rstrip('\n') for character in character_file]
 
-    #Current solution for Mii Fighter page redirect, may need to be changed if Mii fighter page changes
-    mii_page = requests.get('http://kuroganehammer.com/Smash4/Mii')
-    mii_root = html.fromstring(mii_page.content)
-    mii_characters = [element.text_content() for element in mii_root.xpath('//a') if "Mii" in element.text_content()]
-    mii_pages = ['http://kuroganehammer.com' + element.attrib['href'] for element in root.xpath('//h1//a')]
+        with open("pages.txt", 'r') as page_file:
+            pages = [page.rstrip('\n') for page in page_file]
+    else:
+        main_page = requests.get('http://kuroganehammer.com/Smash4/')
+        root = html.fromstring(main_page.content)
+        characters = [element.attrib['alt'] for element in root.xpath('//img')][1:-1]
+        characters.remove("Mii Fighters")
+        pages = ['http://kuroganehammer.com' + element.attrib['href'] for element in root.xpath('//tbody//td//a')]
+        pages.remove('http://kuroganehammer.com/Smash4/Mii')
 
-    characters += mii_characters
-    pages += mii_pages
+        #Current solution for Mii Fighter page redirect, may need to be changed if Mii fighter page changes
+        mii_page = requests.get('http://kuroganehammer.com/Smash4/Mii')
+        mii_root = html.fromstring(mii_page.content)
+        mii_characters = [element.text_content() for element in mii_root.xpath('//a') if "Mii" in element.text_content()]
+        mii_pages = ['http://kuroganehammer.com' + element.attrib['href'] for element in mii_root.xpath('//h1//a')]
+
+        characters += mii_characters
+        pages += mii_pages
+
+        if DOWNLOAD:
+            with open("characters.txt", 'w') as character_file:
+                for character in characters: character_file.write(character + '\n')
+                
+            with open("pages.txt", 'w') as page_file:
+                for page in pages: page_file.write(page + '\n')
+                
     #print characters
     #print pages
     #print result
     return characters, pages
 
 def get_frame_data(url):
-    '''Takes a given character URL with frame data, and returns
-        moveset and frame data as arrays of strings'''
-    page = requests.get(url)
-    root = html.fromstring(page.content)
-    frame_data = root.xpath('//table[@id != "AutoNumber3"]')[1:]
-    #frame_data = frame_data.xpath('//<table[@width() > 600]')
+    ''' Takes a given character's URL, and returns
+        frame data as an array of strings
+        (reads data from HTML text file dump if in offline mode) '''
+    if OFFLINE_MODE:
+        with open(characters[pages.index(url)] + ".txt", "r") as frame_data_file:
+            html_string = frame_data_file.read()
+        root = html.fromstring(html_string)
+    else:
+        page = requests.get(url)
+        root = html.fromstring(page.content)
+        if DOWNLOAD:
+            html_scrape = etree.HTML(page.content)
+            html_string = etree.tostring(html_scrape, pretty_print=True, method="html")
+            with open(characters[pages.index(url)] + ".txt", "w") as frame_data_file:
+                frame_data_file.write(html_string)
+
+    # XPath to get all move names and data entries in tables from
+    # 2nd and 3rd tables; ignores the statistic table and special moves table
+    frame_data = root.xpath('//table[position()=2 or position()=3]//th | ' +
+                            '//table[position()=2 or position()=3]//td')
     frame_data = [element.text_content() for element in frame_data]
     clean_frame_data = trim_frame_data(frame_data)
-    moveset = root.xpath('//th')
-    moveset = [element.text_content() for element in moveset]
     if DEBUG:
         for x in frame_data: print x
-    #clean_movset = [k for k,v in Counter(moveset).items() if v==1]
-    clean_moveset = get_moveset(moveset)
-    return clean_moveset, clean_frame_data
-    #for x in moveset: print x
-    #for x in clean_moveset: print x
-
-def get_moveset(moves):
-    '''Used for stripping non-move words from scraped page'''
-    terms_to_remove = ["Statistic", "Value/Rank", "Attacks",
-              'Hitbox Active', 'FAF', 'Angle',
-              'BKB/WBKB', 'KBG', 'BKB', 'Base Dmg.',
-              'Miscellaneous', 'Intangibility', 'Notes',
-              'Landing Lag', 'Autocancel', 'Grabs', 'Throws',
-              'Weight Dependent?', 'Weight Dependant?', 'Base Dmg. (+SD)']
-    moveset = []
-    counter_to_special_moves = 0
-    for move in moves:
-        if move not in terms_to_remove:
-            moveset += [move.encode('utf-8')]
-            
-        # "Attacks" starts off 3 tables, the 3rd of which is
-        # Special Moves...which we don't want.
-        if move == 'Attacks':
-            counter_to_special_moves += 1
-        if counter_to_special_moves == 3:
-        #Return once we're at the special moves section
-            return moveset
-    #print "Shouldn't reach here..."
-    return moveset
+    #moveset = root.xpath('//table[position()=2 or position()=3]//th')
+    #return moveset, clean_frame_data
+    return clean_frame_data
 
 def isMove(datum):
     for move in all_move_types:
@@ -257,30 +261,28 @@ def isMove(datum):
     return False
 
 def isDodge(datum):
-    #if datum in dodges: return True
-    if "dodge" in datum or "Roll" in datum: return True
+    if "dodge" in datum or "Roll" in datum and datum[0].isdigit() is False: return True
     else: return False
 
 def isGrab(datum):
-    #if datum in grabs: return True
-    if "Grab" in datum: return True
+    if "Grab" in datum and datum[0].isdigit() is False: return True
     else: return False
 
 def isThrow(datum):
-    if "throw" in datum: return True
+    if "throw" in datum and datum[0].isdigit() is False: return True
     else: return False
     
 def isGroundMove(datum):
     for move in all_groundmove_types:
-        if move in datum: return True
+        if move in datum and datum[0].isdigit() is False: return True
     return False
 
 def isAerial(datum):
-    if "air" in datum: return True
+    if "air" in datum and datum[0].isdigit() is False: return True
     else: return False
     
 def parse_frame_data(character_name, frame_data):
-    '''Goes through an clean array of frame data strings and parses it
+    '''Goes through a clean array of frame data strings and parses it
         into objects for the respective move type, and pushes them to
         a Moveset object. Returns the final Moveset object'''
     move_data = []
@@ -289,15 +291,15 @@ def parse_frame_data(character_name, frame_data):
     #Create a moveset object for the given character
     allMoves = Moveset(character_name) 
     for datum in frame_data:
-        #Iterate through frame data, and once a move name has been found,
+        # Iterates through frame data, and once a move name has been found,
         # starts collecting the following data until
         # another move name has been found. The collected move data
         # is then put into an appropriate Move object, based on
-        # amount of data collected and a check of the move name
+        # amount of data collected and a check of the move type
         if isMove(datum):
             newMove = []
             data_len = len(move_data)
-            if data_len == 0: print "Starting data parsing..."
+            if data_len == 0: print "Starting data parsing for " + character_name + "..."
             elif data_len == 3 and isGrab(move_name): newMove = Grab(*move_data)
             elif (data_len == 3 and isDodge(move_name)) or data_len == 4: newMove = Dodge(*move_data)
             elif data_len == 6 and isThrow(move_name): newMove = Throw(*move_data)
@@ -319,47 +321,53 @@ def parse_frame_data(character_name, frame_data):
     return allMoves
 
 def trim_frame_data(raw_frame_data):
-    '''Takes scraped HTML page and cuts out all empty strings.
+    ''' Takes scraped HTML page, strips non-move words from page,
+        and cuts out empty strings.
         Also replaces the unfortunate blank spaces in some pages'
-        Rapid Jab frame data with question marks'''
+        frame data with question marks (blank spaces for data
+        that appears to have not yet been discovered) '''
     new_frame_data = []
     stripped_data = []
-    clean_stripped_data = []
-    for data in raw_frame_data:
-        #split data by newlines, and strip html tags
-        new_data = [item.strip() for item in data.split('\r\n')]
-        stripped_data += new_data
-    if DEBUG:
-        print "PRINTING STRIPPED DATA..."
-        print stripped_data
-        print "\n\n\n"
-    #The following for loop is for replacing the
-    # empty frame data for some characters' Rapid Jabs or Dash attacks
-    # with '?', so that the amount of data per attack (6 strings)
+    
+    # Strip non-move words from scraped page
+    terms_to_remove = ["Statistic", "Value/Rank", "Attacks",
+              'Hitbox Active', 'FAF', 'Angle',
+              'BKB/WBKB', 'KBG', 'BKB', 'Base Dmg.',
+              'Miscellaneous', 'Intangibility', 'Notes',
+              'Landing Lag', 'Autocancel', 'Grabs', 'Throws',
+              'Weight Dependent?', 'Weight Dependant?', 'Base Dmg. (+SD)',
+              'Useless Tractor Beams']
+    new_frame_data = []
+    for move in raw_frame_data:
+        if move not in terms_to_remove: stripped_data += [move.encode('utf-8')]
+
+    # The following for loop is for replacing the
+    # empty frame data for some characters' attacks
+    # with '?', so that the amount of data per attack (6 or 8 strings)
     # stays consistent
     replace_empty = False
     frame_data_counter = 0
     for datum in stripped_data:
         if isGroundMove(datum):
             replace_empty = True
-            frame_data_counter = 0
+            frame_data_counter = 6
+        elif isAerial(datum):
+            replace_empty = True
+            frame_data_counter = 8
         elif isMove(datum):
             replace_empty = False
         elif replace_empty:
-            frame_data_counter += 1
-            if frame_data_counter > 6:
+            frame_data_counter -= 1
+            if frame_data_counter < 0:
                 replace_empty = False
-        clean_stripped_data.append("?" if replace_empty and datum == "" else datum)
-    new_frame_data = filter(None, clean_stripped_data) #Remove all empty strings
+        new_frame_data.append("?" if replace_empty and datum == "" else datum)
+    new_frame_data = filter(None, new_frame_data) #Remove all remaining empty strings
     if DEBUG:
         print "PRINTING CLEAN STRIPPED DATA..."
         print new_frame_data
         print "\n\n\n"
     
-    return get_moveset(new_frame_data)
+    return new_frame_data
 
 characters, pages = get_pages()
-page = random.choice(pages)
-character = characters[pages.index(page)]
-moveset, frame_data = get_frame_data(page)
-parsed_moveset = parse_frame_data(character, frame_data)
+movesets = scrapeAllPages()
