@@ -1,12 +1,15 @@
 from lxml import etree
 from lxml import html
+#import FrameDataGUI
 import requests
 DEBUG = False
 DOWNLOAD = False
-OFFLINE_MODE = False
+OFFLINE_MODE = True
 characters = []
 pages = []
 
+moveset_arrays = ["Jabs", "Dash Attacks", "Tilts", "Smashes", "Aerials",
+                  "Grabs", "Throws", "Dodges"]
 all_groundmove_types = ["Jab", "Attack", "tilt", "smash"]
 all_move_types = ["Jab", "tilt", "smash", "air", "Attack", "Dash", "Rapid", "Grab", "throw", "dodge", "Roll"]
 
@@ -190,6 +193,7 @@ def get_pages():
     ''' Gets all character names and corresponding URLs from
         the KuroganeHammer Smash4 homepage, or from a text file
         if in offline mode '''
+    print "RUNNING IN " + ("OFFLINE MODE" if OFFLINE_MODE else "ONLINE MODE")
     if OFFLINE_MODE:
         with open("characters.txt", 'r') as character_file:
             characters = [character.rstrip('\n') for character in character_file]
@@ -369,5 +373,6 @@ def trim_frame_data(raw_frame_data):
     
     return new_frame_data
 
-characters, pages = get_pages()
-movesets = scrapeAllPages()
+#characters, pages = get_pages()
+#movesets = scrapeAllPages()
+#FrameDataGUI.Run(characters)
