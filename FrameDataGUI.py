@@ -1,7 +1,7 @@
 import Tkinter as tk
 import PyScrape
-TITLE_FONT = ("Helvetica", 18, "bold")
-
+TITLE_FONT = ("Helvetica", 32, "bold")
+TITLE_FONT_2 = ("Helvetica", 18, "bold")
 class ScrapeGUI:
     def __init__(self, main):
         """
@@ -58,7 +58,9 @@ class StartPage(tk.Frame):
         char_select.grid(row=0, column=0, sticky="nsew")
         #select.tkraise()
 
-class CharacterSelect(tk.Frame):
+class CharacterSelectAll(tk.Frame):
+    ''' Not used for now. Expand on this when we want to compare
+        more than 2 characters simultaneously. '''
     def __init__(self, parent, prev_page):
         tk.Frame.__init__(self, parent)
         self.parent = parent
@@ -86,11 +88,14 @@ class CharacterSelect(tk.Frame):
             if col == 5:
                 row += 1
                 col = 0
+                
+        allchars = tk.Button(self, text="Select/Unselect All Characters", command=self.selectall)
+        allchars.grid(row=row+1, column=2, sticky="nsew", pady=10)
+        
         submitbutton = tk.Button(self, text="Compare Selected Characters",
                                  command=self.submit)
-        submitbutton.grid(row=row+1, column=2, stick="nsew", pady=20)
-        allchars = tk.Button(self, text="Compare All Characters", command=self.submit)
-        allchars.grid(row=row+2, column=2, sticky="nsew", pady=10)
+        submitbutton.grid(row=row+2, column=2, stick="nsew", pady=20)
+        
         backbutton = tk.Button(self, text="Back", command=self.back)
         backbutton.grid(row=row+3, column=0, sticky="nsew", pady=5)
         #submitbutton.pack(side="bottom")
@@ -102,9 +107,23 @@ class CharacterSelect(tk.Frame):
         else:
             self.selected_characters.remove(character)
             self.character_buttons[button_index].config(relief=tk.RAISED, bg = self.def_color)
+            
+    def selectall(self):
+        if set(self.characters) == set(self.selected_characters):
+            print "SAME!"
+            self.selected_characters = []
+            for button in self.character_buttons:
+                button.config(relief=tk.RAISED, bg = self.def_color)
+        else:
+            print "NOT SAME!"
+            for index in range(len(self.characters)):
+                if self.characters[index] not in self.selected_characters:
+                    self.selected_characters.append(self.characters[index])
+                self.character_buttons[index].config(relief=tk.SUNKEN, bg="red")
+        
         
     def submit(self):
-        self.selected_characters.sort()
+        PyScrape.character_sort(self.selected_characters)
         print self.selected_characters
         move_select = MoveSelect(self.parent, self)
         self.grid_remove()
@@ -115,8 +134,74 @@ class CharacterSelect(tk.Frame):
         self.destroy()
         self.prev_page.grid()
         
+class CharacterSelect(tk.Frame):
+    def __init__(self, parent, prev_page):
+        tk.Frame.__init__(self, parent)
+        self.parent = parent
+        self.prev_page = prev_page
+        self.characters, _ = PyScrape.get_pages()
+        self.def_color = parent.cget("bg")
+        self.selected_characters = []
+        self.character_buttons = {}
+        self.grid(padx=20, pady=20)
+        label = tk.Label(self, text="Select 2 characters to compare", font=TITLE_FONT)
+        label.grid(row=0, column=2, sticky="nsew", pady=20)
+        #label.pack(side="top", fill="x", pady=10)
+        #allchars.pack(side="top")
+        row = 1
+        col = 0
+        for character in self.characters:
+            button = tk.Button(self, text=character,
+                               command=lambda char = character:
+                               self.addchar(char))
+            self.character_buttons[character] = button
+            button.grid(row=row, column=col, sticky="ew", padx=10, pady=5)
+            #button.pack()
+            col += 1
+            if col == 5:
+                row += 1
+                col = 0
+                
+        
+        submitbutton = tk.Button(self, text="Compare Selected Characters",
+                                 command=self.submit)
+        submitbutton.grid(row=row+1, column=2, stick="nsew", pady=20)
+        
+        backbutton = tk.Button(self, text="Back", command=self.back)
+        backbutton.grid(row=row+2, column=0, sticky="nsew", pady=5)
+        #submitbutton.pack(side="bottom")
 
-class MoveSelect(tk.Frame):
+    def addchar(self, character):
+        if character not in self.selected_characters:
+            self.selected_characters.append(character)
+            self.character_buttons[character].config(relief=tk.SUNKEN, bg="red")            
+        else:
+            self.selected_characters.remove(character)
+            self.character_buttons[character].config(relief=tk.RAISED, bg = self.def_color)
+
+        if len(self.selected_characters) > 2:
+            oldest_char = self.selected_characters[0]
+            self.character_buttons[oldest_char].config(relief=tk.RAISED, bg = self.def_color)
+            self.selected_characters.remove(oldest_char)
+        
+        
+    def submit(self):
+        PyScrape.character_sort(self.selected_characters)
+        print self.selected_characters
+        move_select = MoveSelect(self.parent, self,
+                                 self.selected_characters[0], self.selected_characters[1])
+        self.grid_remove()
+        move_select.grid(row=0, column=0, sticky="nsew")
+
+    def back(self):
+        self.grid_forget()
+        self.destroy()
+        self.prev_page.grid()
+
+        
+class MoveSelectAll(tk.Frame):
+    ''' Not used for now. Expand on this when we want to compare
+        more than 2 moves simultaneously. '''
     def __init__(self, parent, prev_page):
         tk.Frame.__init__(self, parent)
         self.parent = parent
@@ -144,11 +229,14 @@ class MoveSelect(tk.Frame):
             if col == 5:
                 row += 1
                 col = 0
+                
+        allmoves = tk.Button(self, text="Select/Unselect All Moves", command=self.selectall)
+        allmoves.grid(row=row+1, column=2, sticky="nsew", pady=10)
+        
         submitbutton = tk.Button(self, text="Compare Selected Moves",
                                  command=self.submit)
-        submitbutton.grid(row=row+1, column=2, stick="nsew", pady=20)
-        allmoves = tk.Button(self, text="Compare All Moves", command=self.submit)
-        allmoves.grid(row=row+2, column=2, sticky="nsew", pady=10)
+        submitbutton.grid(row=row+2, column=2, stick="nsew", pady=20)
+        
         backbutton = tk.Button(self, text="Back", command=self.back)
         backbutton.grid(row=row+3, column=0, sticky="nsew", pady=5)
         #submitbutton.pack(side="bottom")
@@ -160,9 +248,21 @@ class MoveSelect(tk.Frame):
         else:
             self.selected_moves.remove(move)
             self.move_buttons[button_index].config(relief=tk.RAISED, bg = self.def_color)
-        
+
+    def selectall(self):
+        if set(self.moves) == set(self.selected_moves):
+            print "SAME!"
+            self.selected_moves = []
+            for button in self.move_buttons:
+                button.config(relief=tk.RAISED, bg = self.def_color)
+        else:
+            print "NOT SAME!"
+            for index in range(len(self.moves)):
+                if self.moves[index] not in self.selected_moves:
+                    self.selected_moves.append(self.moves[index])
+                self.move_buttons[index].config(relief=tk.SUNKEN, bg="red")
+                
     def submit(self):
-        self.selected_moves.sort()
         print self.selected_moves
         self.grid_remove()
 
@@ -170,6 +270,123 @@ class MoveSelect(tk.Frame):
         self.grid_forget()
         self.destroy()
         self.prev_page.grid() 
+
+class MoveSelect(tk.Frame):
+    def __init__(self, parent, prev_page, char1, char2):
+        tk.Frame.__init__(self, parent)
+        self.parent = parent
+        self.prev_page = prev_page
+        self.char1 = char1
+        self.char1_moveset = PyScrape.get_moveset(PyScrape.pages[PyScrape.characters.index(char1)])
+        self.char2 = char2
+        self.char2_moveset = PyScrape.get_moveset(PyScrape.pages[PyScrape.characters.index(char2)])
+        self.def_color = parent.cget("bg")
+        self.selected_moves = []
+        self.move_buttons = {}
+        self.grid(padx=20, pady=20)
+        label = tk.Label(self, text="Select moves to compare", font=TITLE_FONT)
+        label.grid(row=0, column=2, sticky="nsew", pady=20)
+
+        char1_label = tk.Label(self, text=char1, font=TITLE_FONT_2)
+        char1_label.grid(row=1, column=0, sticky="nsew", pady=20)
+        char2_label = tk.Label(self, text=char2, font=TITLE_FONT_2)
+        char2_label.grid(row=1, column=3, sticky="nsew", pady=20)
+        #label.pack(side="top", fill="x", pady=10)
+        #allchars.pack(side="top")
+        row = 2
+        col = 0
+        for move in self.char1_moveset:
+            button = tk.Button(self, text=move,
+                               command=lambda char_name = char1, move_name = move:
+                               self.addmove(char_name, move_name))
+            self.move_buttons[(char1, move)] = button
+            button.grid(row=row, column=col, sticky="ew", padx=10, pady=5)
+            #button.pack()
+            col += 1
+            if col == 2:
+                row += 1
+                col = 0
+        bottom_row = row
+
+        col = 3
+        row = 2
+        for move in self.char2_moveset:
+            button = tk.Button(self, text=move,
+                               command=lambda char_name = char2, move_name = move:
+                               self.addmove(char_name, move_name))
+            self.move_buttons[(char2, move)] = button
+            button.grid(row=row, column=col, sticky="ew", padx=10, pady=5)
+            #button.pack()
+            col += 1
+            if col == 5:
+                row += 1
+                col = 3
+
+        row = max(row, bottom_row)
+        submitbutton = tk.Button(self, text="Compare Selected Moves",
+                                 command=self.submit)
+        submitbutton.grid(row=row+1, column=2, stick="nsew", pady=20)
+        
+        backbutton = tk.Button(self, text="Back", command=self.back)
+        backbutton.grid(row=row+2, column=0, sticky="nsew", pady=5)
+        #submitbutton.pack(side="bottom")
+
+    def addmove(self, char, move):
+        char_move_tuple = (char, move)
+        if move not in self.selected_moves:
+            self.selected_moves.append(char_move_tuple)
+            self.move_buttons[char_move_tuple].config(relief=tk.SUNKEN, bg="red")            
+        else:
+            self.selected_moves.remove(char_move_tuple)
+            self.move_buttons[char_move_tuple].config(relief=tk.RAISED, bg = self.def_color)
+
+        if len(self.selected_moves) > 2:
+            oldest_char_move = self.selected_moves[0]
+            self.move_buttons[oldest_char_move].config(relief=tk.RAISED, bg = self.def_color)
+            self.selected_moves.remove(oldest_char_move)
+                
+    def submit(self):
+        print self.selected_moves
+        self.grid_remove()
+
+    def back(self):
+        self.grid_forget()
+        self.destroy()
+        self.prev_page.grid()
+        
+class DataDisplay(tk.Frame):
+    def __init__(self, parent, prev_page):
+        tk.Frame.__init__(self, parent)
+        self.parent = parent
+        self.prev_page = prev_page
+        self.def_color = parent.cget("bg")
+        self.grid(padx=20, pady=20)
+        label = tk.Label(self, text="Moveset Frame Data Comparison", font=TITLE_FONT)
+        label.grid(row=0, column=2, sticky="nsew", pady=20)
+        #label.pack(side="top", fill="x", pady=10)
+        #allchars.pack(side="top")
+        row = 1
+        col = 0
+        for move in self.moves:
+            button_index = self.moves.index(move)
+            button = tk.Button(self, text=move,
+                               command=lambda move_name = move, index = button_index:
+                               self.addmove(move_name, index))
+            self.move_buttons.append(button)
+            button.grid(row=row, column=col, sticky="ew", padx=10, pady=5)
+            #button.pack()
+            col += 1
+            if col == 5:
+                row += 1
+                col = 0
+        submitbutton = tk.Button(self, text="Compare Selected Moves",
+                                 command=self.submit)
+        submitbutton.grid(row=row+1, column=2, stick="nsew", pady=20)
+        allmoves = tk.Button(self, text="Compare All Moves", command=self.submit)
+        allmoves.grid(row=row+2, column=2, sticky="nsew", pady=10)
+        backbutton = tk.Button(self, text="Back", command=self.back)
+        backbutton.grid(row=row+3, column=0, sticky="nsew", pady=5)
+        #submitbutton.pack(side="bottom")
 
 def Run():
     root = tk.Tk()
