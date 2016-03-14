@@ -4,7 +4,7 @@ from lxml import html
 import requests
 DEBUG = False
 DOWNLOAD = False
-OFFLINE_MODE = True
+OFFLINE_MODE = False
 characters = []
 pages = []
 
@@ -194,6 +194,8 @@ def get_pages():
         the KuroganeHammer Smash4 homepage, or from a text file
         if in offline mode '''
     print "RUNNING IN " + ("OFFLINE MODE" if OFFLINE_MODE else "ONLINE MODE")
+    global pages
+    global characters
     if OFFLINE_MODE:
         with open("characters.txt", 'r') as character_file:
             characters = [character.rstrip('\n') for character in character_file]
@@ -257,6 +259,41 @@ def get_frame_data(url):
     #moveset = root.xpath('//table[position()=2 or position()=3]//th')
     #return moveset, clean_frame_data
     return clean_frame_data
+
+def get_moveset(url):
+    ''' Takes a given character's URL, and returns
+        moveset as an array of strings
+        (reads data from HTML text file dump if in offline mode) '''
+    if OFFLINE_MODE:
+        with open(characters[pages.index(url)] + ".txt", "r") as frame_data_file:
+            html_string = frame_data_file.read()
+        root = html.fromstring(html_string)
+    else:
+        page = requests.get(url)
+        root = html.fromstring(page.content)
+        if DOWNLOAD:
+            html_scrape = etree.HTML(page.content)
+            html_string = etree.tostring(html_scrape, pretty_print=True, method="html")
+            with open(characters[pages.index(url)] + ".txt", "w") as frame_data_file:
+                frame_data_file.write(html_string)
+
+    # XPath to get all move names and data entries in tables from
+    # 2nd and 3rd tables; ignores the statistic table and special moves table
+    moveset = root.xpath('//table[position()=2 or position()=3]//th')
+    moveset = [element.text_content() for element in moveset]
+    terms_to_remove = ["Statistic", "Value/Rank", "Attacks",
+              'Hitbox Active', 'FAF', 'Angle',
+              'BKB/WBKB', 'KBG', 'BKB', 'Base Dmg.',
+              'Miscellaneous', 'Intangibility', 'Notes',
+              'Landing Lag', 'Autocancel', 'Grabs', 'Throws',
+              'Weight Dependent?', 'Weight Dependant?', 'Base Dmg. (+SD)',
+              'Useless Tractor Beams']
+    clean_moveset = []
+    for move in moveset:
+        if move not in terms_to_remove: clean_moveset += [move.encode('utf-8')]
+    if DEBUG:
+        print moveset
+    return clean_moveset
 
 def isMove(datum):
     for move in all_move_types:
@@ -373,6 +410,13 @@ def trim_frame_data(raw_frame_data):
     
     return new_frame_data
 
+def character_sort(characters):
+    characters.sort()
+    for mii_fighter in ["Mii Swordfighter", "Mii Brawler", "Mii Gunner"]:
+        if mii_fighter in characters:
+            characters.remove(mii_fighter)
+            characters.append(mii_fighter)
+    
 #characters, pages = get_pages()
 #movesets = scrapeAllPages()
 #FrameDataGUI.Run(characters)
