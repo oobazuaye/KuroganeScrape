@@ -18,7 +18,7 @@ class ScrapeGUI:
             page_name = page.__name__
             frame = page(container, self)
             self.frames[page_name] = frame
-
+su
             # put all of the pages in the same location;
             # the one on the top of the stacking order
             # will be the one that is visible.
@@ -123,6 +123,8 @@ class CharacterSelectAll(tk.Frame):
         
         
     def submit(self):
+        if len(self.selected_characters ) < 2:
+            return
         PyScrape.character_sort(self.selected_characters)
         print self.selected_characters
         move_select = MoveSelect(self.parent, self)
@@ -333,7 +335,7 @@ class MoveSelect(tk.Frame):
 
     def addmove(self, char, move):
         char_move_tuple = (char, move)
-        if move not in self.selected_moves:
+        if char_move_tuple not in self.selected_moves:
             self.selected_moves.append(char_move_tuple)
             self.move_buttons[char_move_tuple].config(relief=tk.SUNKEN, bg="red")            
         else:
@@ -346,6 +348,8 @@ class MoveSelect(tk.Frame):
             self.selected_moves.remove(oldest_char_move)
                 
     def submit(self):
+        if len(self.selected_moves) < 2:
+            return
         print self.selected_moves
         self.grid_remove()
 
