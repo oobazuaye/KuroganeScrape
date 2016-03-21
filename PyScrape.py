@@ -105,8 +105,10 @@ class Dodge:
                 "\n\n"
 
 class Moveset:
-    def __init__(self, character_name):
+    def __init__(self, character_name, moveset):
         self.character_name = character_name
+        self.moveset = moveset
+        self.move_dict = {}
         self.jabs = []
         self.dash_attacks = []
         self.tilts = []
@@ -166,7 +168,9 @@ class Moveset:
         elif className(move) == "Dodge": self.dodges.append(move)
         elif className(move) == "list":
             if DEBUG: print "ignoring empty data..."
+            return
         else: raise ValueError("ERROR!!! invalid move")
+        self.move_dict[move.name] = move
 
 
 def className(instance):
@@ -176,13 +180,13 @@ def className(instance):
 def scrapePage(character):
     ''' Returns the parsed moveset of a given character
         as a Moveset instance '''
-    frame_data = get_frame_data(pages[characters.index(character)])
-    parsed_moveset = parse_frame_data(character, frame_data)
+    moveset, frame_data = get_frame_data(pages[characters.index(character)])
+    parsed_moveset = parse_frame_data(character, frame_data, moveset)
     return parsed_moveset
 
 def scrapeAllPages():
     ''' Returns the parsed movesets for all characters
-        as a dictionary of Moveset instances '''
+        as a dictionary of Moveset instance"so s '''
     all_movesets = {}
     for character in characters:
         char_scrape = scrapePage(character)
@@ -231,10 +235,24 @@ def get_pages():
     #print result
     return characters, pages
 
-def get_frame_data(url):
-    ''' Takes a given character's URL, and returns
+def get_frame_data(char_url):
+    ''' Takes a given character's URL or name, and returns
         frame data as an array of strings
         (reads data from HTML text file dump if in offline mode) '''
+
+    if len(characters) == 0 or len(pages) == 0:
+        get_pages()
+        
+    if char_url in pages:
+        url = char_url
+    else:
+        if char_url in characters:
+            url = pages[characters.index(char_url)]
+        else:
+            raise ValueError("URL or character name does not exist!")
+        
+
+            
     if OFFLINE_MODE:
         with open(characters[pages.index(url)] + ".txt", "r") as frame_data_file:
             html_string = frame_data_file.read()
@@ -256,44 +274,11 @@ def get_frame_data(url):
     clean_frame_data = trim_frame_data(frame_data)
     if DEBUG:
         for x in frame_data: print x
-    #moveset = root.xpath('//table[position()=2 or position()=3]//th')
-    #return moveset, clean_frame_data
-    return clean_frame_data
-
-def get_moveset(url):
-    ''' Takes a given character's URL, and returns
-        moveset as an array of strings
-        (reads data from HTML text file dump if in offline mode) '''
-    if OFFLINE_MODE:
-        with open(characters[pages.index(url)] + ".txt", "r") as frame_data_file:
-            html_string = frame_data_file.read()
-        root = html.fromstring(html_string)
-    else:
-        page = requests.get(url)
-        root = html.fromstring(page.content)
-        if DOWNLOAD:
-            html_scrape = etree.HTML(page.content)
-            html_string = etree.tostring(html_scrape, pretty_print=True, method="html")
-            with open(characters[pages.index(url)] + ".txt", "w") as frame_data_file:
-                frame_data_file.write(html_string)
-
-    # XPath to get all move names and data entries in tables from
-    # 2nd and 3rd tables; ignores the statistic table and special moves table
     moveset = root.xpath('//table[position()=2 or position()=3]//th')
     moveset = [element.text_content() for element in moveset]
-    terms_to_remove = ["Statistic", "Value/Rank", "Attacks",
-              'Hitbox Active', 'FAF', 'Angle',
-              'BKB/WBKB', 'KBG', 'BKB', 'Base Dmg.',
-              'Miscellaneous', 'Intangibility', 'Notes',
-              'Landing Lag', 'Autocancel', 'Grabs', 'Throws',
-              'Weight Dependent?', 'Weight Dependant?', 'Base Dmg. (+SD)',
-              'Useless Tractor Beams']
-    clean_moveset = []
-    for move in moveset:
-        if move not in terms_to_remove: clean_moveset += [move.encode('utf-8')]
-    if DEBUG:
-        print moveset
-    return clean_moveset
+    clean_moveset = trim_frame_data(moveset)
+    return clean_moveset, clean_frame_data
+    #return clean_frame_data
 
 def isMove(datum):
     for move in all_move_types:
@@ -322,7 +307,7 @@ def isAerial(datum):
     if "air" in datum and datum[0].isdigit() is False: return True
     else: return False
     
-def parse_frame_data(character_name, frame_data):
+def parse_frame_data(character_name, frame_data, moveset):
     '''Goes through a clean array of frame data strings and parses it
         into objects for the respective move type, and pushes them to
         a Moveset object. Returns the final Moveset object'''
@@ -330,7 +315,7 @@ def parse_frame_data(character_name, frame_data):
     move_name = ""
     
     #Create a moveset object for the given character
-    allMoves = Moveset(character_name) 
+    allMoves = Moveset(character_name, moveset) 
     for datum in frame_data:
         # Iterates through frame data, and once a move name has been found,
         # starts collecting the following data until
