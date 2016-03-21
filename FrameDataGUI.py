@@ -1,4 +1,4 @@
-import Tkinter as tk
+import Tix as tk
 import PyScrape
 TITLE_FONT = ("Helvetica", 32, "bold")
 TITLE_FONT_2 = ("Helvetica", 18, "bold")
@@ -18,7 +18,7 @@ class ScrapeGUI:
             page_name = page.__name__
             frame = page(container, self)
             self.frames[page_name] = frame
-su
+
             # put all of the pages in the same location;
             # the one on the top of the stacking order
             # will be the one that is visible.
@@ -123,8 +123,6 @@ class CharacterSelectAll(tk.Frame):
         
         
     def submit(self):
-        if len(self.selected_characters ) < 2:
-            return
         PyScrape.character_sort(self.selected_characters)
         print self.selected_characters
         move_select = MoveSelect(self.parent, self)
@@ -188,10 +186,14 @@ class CharacterSelect(tk.Frame):
         
         
     def submit(self):
+        if len(self.selected_characters ) < 2:
+            return
         PyScrape.character_sort(self.selected_characters)
         print self.selected_characters
+        char1_moveset = PyScrape.scrapePage(self.selected_characters[0])
+        char2_moveset = PyScrape.scrapePage(self.selected_characters[1])
         move_select = MoveSelect(self.parent, self,
-                                 self.selected_characters[0], self.selected_characters[1])
+                                 char1_moveset, char2_moveset)
         self.grid_remove()
         move_select.grid(row=0, column=0, sticky="nsew")
 
@@ -274,14 +276,14 @@ class MoveSelectAll(tk.Frame):
         self.prev_page.grid() 
 
 class MoveSelect(tk.Frame):
-    def __init__(self, parent, prev_page, char1, char2):
-        tk.Frame.__init__(self, parent)
+    def __init__(self, parent, prev_page, char1_framedata, char2_framedata):
+        tk.Frame.__init__(self, parent, width="480", height="640")  
         self.parent = parent
         self.prev_page = prev_page
-        self.char1 = char1
-        self.char1_moveset = PyScrape.get_moveset(PyScrape.pages[PyScrape.characters.index(char1)])
-        self.char2 = char2
-        self.char2_moveset = PyScrape.get_moveset(PyScrape.pages[PyScrape.characters.index(char2)])
+        char1 = char1_framedata.character_name
+        char2 = char2_framedata.character_name
+        self.char1_framedata = char1_framedata
+        self.char2_framedata = char2_framedata
         self.def_color = parent.cget("bg")
         self.selected_moves = []
         self.move_buttons = {}
@@ -297,10 +299,10 @@ class MoveSelect(tk.Frame):
         #allchars.pack(side="top")
         row = 2
         col = 0
-        for move in self.char1_moveset:
+        for move in char1_framedata.moveset:
             button = tk.Button(self, text=move,
-                               command=lambda char_name = char1, move_name = move:
-                               self.addmove(char_name, move_name))
+                               command=lambda moveset = char1_framedata, move_name = move:
+                               self.addmove(moveset, move_name))
             self.move_buttons[(char1, move)] = button
             button.grid(row=row, column=col, sticky="ew", padx=10, pady=5)
             #button.pack()
@@ -312,10 +314,10 @@ class MoveSelect(tk.Frame):
 
         col = 3
         row = 2
-        for move in self.char2_moveset:
+        for move in char2_framedata.moveset:
             button = tk.Button(self, text=move,
-                               command=lambda char_name = char2, move_name = move:
-                               self.addmove(char_name, move_name))
+                               command=lambda moveset = char2_framedata, move_name = move:
+                               self.addmove(moveset, move_name))
             self.move_buttons[(char2, move)] = button
             button.grid(row=row, column=col, sticky="ew", padx=10, pady=5)
             #button.pack()
@@ -333,17 +335,19 @@ class MoveSelect(tk.Frame):
         backbutton.grid(row=row+2, column=0, sticky="nsew", pady=5)
         #submitbutton.pack(side="bottom")
 
-    def addmove(self, char, move):
-        char_move_tuple = (char, move)
+    def addmove(self, char_moveset, move):
+        char_move_tuple = (char_moveset, move)
+        button_tuple = (char_moveset.character_name, move)
         if char_move_tuple not in self.selected_moves:
             self.selected_moves.append(char_move_tuple)
-            self.move_buttons[char_move_tuple].config(relief=tk.SUNKEN, bg="red")            
+            self.move_buttons[button_tuple].config(relief=tk.SUNKEN, bg="red")            
         else:
             self.selected_moves.remove(char_move_tuple)
-            self.move_buttons[char_move_tuple].config(relief=tk.RAISED, bg = self.def_color)
+            self.move_buttons[button_tuple].config(relief=tk.RAISED, bg = self.def_color)
 
         if len(self.selected_moves) > 2:
             oldest_char_move = self.selected_moves[0]
+            oldest_button_tuple = (oldest_char_move[0].character_name, oldest_char_move[1])
             self.move_buttons[oldest_char_move].config(relief=tk.RAISED, bg = self.def_color)
             self.selected_moves.remove(oldest_char_move)
                 
@@ -351,7 +355,12 @@ class MoveSelect(tk.Frame):
         if len(self.selected_moves) < 2:
             return
         print self.selected_moves
+
+        data_display = DataDisplay(self.parent, self,
+                                   self.selected_moves[0],
+                                   self.selected_moves[1])
         self.grid_remove()
+        move_select.grid(row=0, column=0, sticky="nsew")
 
     def back(self):
         self.grid_forget()
@@ -359,7 +368,7 @@ class MoveSelect(tk.Frame):
         self.prev_page.grid()
         
 class DataDisplay(tk.Frame):
-    def __init__(self, parent, prev_page):
+    def __init__(self, parent, prev_page, move1, move2):
         tk.Frame.__init__(self, parent)
         self.parent = parent
         self.prev_page = prev_page
