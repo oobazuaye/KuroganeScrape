@@ -1,6 +1,5 @@
 from lxml import etree
 from lxml import html
-#import FrameDataGUI
 import requests
 DEBUG = False
 DOWNLOAD = False
@@ -16,27 +15,8 @@ all_move_types = ["Jab", "tilt", "smash", "air", "Attack", "Dash", "Rapid", "Gra
 #TODO: They spelled "dependent" wrong on Kirby's page...
 
 #Simple class structures for storing frame data for moves
-class GroundMove:
-    def __init__(self, name, hitbox, faf, base_dmg, angle, bkb_wbkb, kbg):
-        self.name = name
-        self.hitbox = hitbox
-        self.faf = faf
-        self.base_dmg = base_dmg
-        self.angle = angle
-        self.bkb_wbkb = bkb_wbkb
-        self.kbg = kbg
 
-    def __str__(self):
-        return  "      " + self.name + \
-                "\n         Hitbox: " + self.hitbox + \
-                "\n         FAF: " + self.faf + \
-                "\n         Base Damage: " + self.base_dmg + \
-                "\n         Angle: " + self.angle + \
-                "\n         BKB/WBKB: " + self.bkb_wbkb + \
-                "\n         KBG: " + self.kbg + \
-                "\n\n"        
-
-class Aerial:
+class Move:
     def __init__(self, name, hitbox, faf, base_dmg, angle, bkb_wbkb, kbg, landing_lag, autocancel):
         self.name = name
         self.hitbox = hitbox
@@ -47,6 +27,9 @@ class Aerial:
         self.kbg = kbg
         self.landing_lag = landing_lag
         self.autocancel = autocancel
+        self.weight = weight
+        self.intangibility = intangibility
+        self.notes = notes        
 
     def __str__(self):
         return  "      " + self.name + \
@@ -58,52 +41,102 @@ class Aerial:
                 "\n         KBG: " + self.kbg + \
                 "\n         Landing Lag: " + self.landing_lag + \
                 "\n         Autocancel: " + self.autocancel + \
-                "\n\n"        
+                "\n         Weight Dependent?: " + self.weight + \
+                "\n         Intangibility: " + self.intangibility + \
+                "\n         Notes: " + self.notes + \
+                "\n\n"  
+    
+class GroundMove(Move):
+    def __init__(self, name, hitbox, faf, base_dmg, angle, bkb_wbkb, kbg):
+        self.name = name
+        self.hitbox = hitbox
+        self.faf = faf
+        self.base_dmg = base_dmg
+        self.angle = angle
+        self.bkb_wbkb = bkb_wbkb
+        self.kbg = kbg
+        self.landing_lag = "N/A"
+        self.autocancel = "N/A"
+        self.weight = "N/A"
+        self.intangibility = "N/A"
+        self.notes = "N/A"       
 
-class Grab:
+class Aerial(Move):
+    def __init__(self, name, hitbox, faf, base_dmg, angle, bkb_wbkb, kbg, landing_lag, autocancel):
+        self.name = name
+        self.hitbox = hitbox
+        self.faf = faf
+        self.base_dmg = base_dmg
+        self.angle = angle
+        self.bkb_wbkb = bkb_wbkb
+        self.kbg = kbg
+        self.landing_lag = landing_lag
+        self.autocancel = autocancel
+        self.weight = "N/A"
+        self.intangibility = "N/A"
+        self.notes = "N/A"               
+
+class Grab(Move):
     def __init__(self, name, hitbox, faf):
         self.name = name
         self.hitbox = hitbox
         self.faf = faf
+        self.base_dmg = "N/A"
+        self.angle = "N/A"
+        self.bkb_wbkb = "N/A"
+        self.kbg = "N/A"
+        self.landing_lag = "N/A"
+        self.autocancel = "N/A"
+        self.weight = "N/A"
+        self.intangibility = "N/A"
+        self.notes = "N/A"         
 
-    def __str__(self):
-        return  "      " + self.name + \
-                "\n         Hitbox: " + self.hitbox + \
-                "\n         FAF: " + self.faf + \
-                "\n\n"
-
-class Throw:
+class Throw(Move):
     def __init__(self, name, weight, base_dmg, angle, bkb, kbg):
         self.name = name
-        self.weight = weight
+        self.hitbox = "N/A"
+        self.faf = "N/A"
         self.base_dmg = base_dmg
         self.angle = angle
-        self.bkb = bkb
-        self.kbg = kbg
-        
-    def __str__(self):
-        return  "      " + self.name + \
-                "\n         Weight Dependent?: " + self.weight + \
-                "\n         Base Damage: " + self.base_dmg + \
-                "\n         Angle: " + self.angle + \
-                "\n         BKB: " + self.bkb + \
-                "\n         KBG: " + self.kbg + \
-                "\n\n"
+        self.bkb_wbkb = bkb
+        self.kbg = kbg     
+        self.landing_lag = "N/A"
+        self.autocancel = "N/A"
+        self.weight = weight
+        self.intangibility = "N/A"
+        self.notes = "N/A"           
 
-class Dodge:
+class Dodge(Move):
     def __init__(self, name, intangibility, faf, notes = "-"):
         self.name = name
-        self.intangibility = intangibility
+        self.hitbox = "N/A"
         self.faf = faf
+        self.base_dmg = "N/A"
+        self.angle = "N/A"
+        self.bkb_wbkb = "N/A"
+        self.kbg = "N/A"
+        self.landing_lag = "N/A"
+        self.autocancel = "N/A"
+        self.weight = "N/A" 
+        self.intangibility = intangibility
         self.notes = notes
+               
 
-    def __str__(self):
-        return  "      " + self.name + \
-                "\n         Intangibility: " + self.intangibility + \
-                "\n         FAF: " + self.faf + \
-                "\n         Notes: " + self.notes + \
-                "\n\n"
-
+class Special(Move):
+    def __init__(self, name, hitbox, faf, base_dmg, angle, bkb_wbkb, kbg):
+        self.name = name
+        self.hitbox = hitbox
+        self.faf = faf
+        self.base_dmg = base_dmg
+        self.angle = angle
+        self.bkb_wbkb = bkb_wbkb
+        self.kbg = kbg
+        self.landing_lag = "N/A"
+        self.autocancel = "N/A"
+        self.weight = "N/A"
+        self.intangibility = "N/A"
+        self.notes = "N/A"     
+    
 class Moveset:
     def __init__(self, character_name, moveset):
         self.character_name = character_name
@@ -117,11 +150,12 @@ class Moveset:
         self.grabs = []
         self.throws = []
         self.dodges = []
+        self.specials = []
 
     def __str__(self):
         moveset_str = self.character_name + ":\n"
         
-        moveset_str += "   Jabs:\n"
+        moveset_str += "   Jab Attacks:\n"
         for move in self.jabs:
             moveset_str += str(move)
 
@@ -152,6 +186,10 @@ class Moveset:
         moveset_str += "   Dodges:\n"
         for move in self.dodges:
             moveset_str += str(move)
+
+        moveset_str += "   Special Attacks:\n"
+        for move in self.specials:
+            moveset_str += str(move)
           
         return moveset_str
         
@@ -166,6 +204,7 @@ class Moveset:
         elif className(move) == "Grab": self.grabs.append(move)
         elif className(move) == "Throw": self.throws.append(move)
         elif className(move) == "Dodge": self.dodges.append(move)
+        elif className(move) == "Special": self.specials.append(move)
         elif className(move) == "list":
             if DEBUG: print "ignoring empty data..."
             return
@@ -180,6 +219,8 @@ def className(instance):
 def scrapePage(character):
     ''' Returns the parsed moveset of a given character
         as a Moveset instance '''
+    if len(characters) == 0 or len(pages) == 0:
+        get_pages()
     moveset, frame_data = get_frame_data(pages[characters.index(character)])
     parsed_moveset = parse_frame_data(character, frame_data, moveset)
     return parsed_moveset
@@ -188,6 +229,9 @@ def scrapeAllPages():
     ''' Returns the parsed movesets for all characters
         as a dictionary of Moveset instance"so s '''
     all_movesets = {}
+    if len(characters) == 0 or len(pages) == 0:
+        get_pages()
+        
     for character in characters:
         char_scrape = scrapePage(character)
         all_movesets[character] = char_scrape
@@ -268,15 +312,19 @@ def get_frame_data(char_url):
 
     # XPath to get all move names and data entries in tables from
     # 2nd and 3rd tables; ignores the statistic table and special moves table
-    frame_data = root.xpath('//table[position()=2 or position()=3]//th | ' +
-                            '//table[position()=2 or position()=3]//td')
-    frame_data = [element.text_content() for element in frame_data]
+    frame_data = []
+    for table_num in xrange(2,5):
+        frame_table = root.xpath('//table[position()=' + str(table_num) + ']//th | ' +
+                                '//table[position()=' + str(table_num) + ']//td')
+        frame_table = [element.text_content() for element in frame_table]
+        frame_data.append(frame_table)
     clean_frame_data = trim_frame_data(frame_data)
+    
     if DEBUG:
         for x in frame_data: print x
-    moveset = root.xpath('//table[position()=2 or position()=3]//th')
+    moveset = root.xpath('//table[position()!=1]//th')
     moveset = [element.text_content() for element in moveset]
-    clean_moveset = trim_frame_data(moveset)
+    clean_moveset = trim_non_move_name(moveset)
     return clean_moveset, clean_frame_data
     #return clean_frame_data
 
@@ -306,31 +354,92 @@ def isGroundMove(datum):
 def isAerial(datum):
     if "air" in datum and datum[0].isdigit() is False: return True
     else: return False
+
+def move_gen(move_data):
+    data_len = len(move_data)
+    if data_len == 0: return []
+    else: move_name = move_data[0]
     
+    if data_len == 3 and isGrab(move_name): newMove = Grab(*move_data)
+    elif (data_len == 3 and isDodge(move_name)) or data_len == 4: newMove = Dodge(*move_data)
+    elif data_len == 6 and isThrow(move_name): newMove = Throw(*move_data)
+    elif data_len == 7 and isGroundMove(move_name): newMove = GroundMove(*move_data)
+    elif data_len == 9 and isAerial(move_name): newMove = Aerial(*move_data)
+    else:
+        raise ValueError("ERROR!!!! invalid amount of frame data for " +
+                         move_name +
+                         ". counted " +
+                         str(data_len) +
+                         " data strings!")
+    return newMove
+
 def parse_frame_data(character_name, frame_data, moveset):
     '''Goes through a clean array of frame data strings and parses it
         into objects for the respective move type, and pushes them to
         a Moveset object. Returns the final Moveset object'''
+    
+    ground_frame_data = frame_data[0]
+    aerial_frame_data = frame_data[1]
+    special_frame_data = frame_data[2]
+    #Create a moveset object for the given character
+    allMoves = Moveset(character_name, moveset)
+    print "Starting data parsing for " + character_name + "..."
     move_data = []
     move_name = ""
-    
-    #Create a moveset object for the given character
-    allMoves = Moveset(character_name, moveset) 
-    for datum in frame_data:
+    for datum in ground_frame_data:
         # Iterates through frame data, and once a move name has been found,
         # starts collecting the following data until
         # another move name has been found. The collected move data
         # is then put into an appropriate Move object, based on
         # amount of data collected and a check of the move type
         if isMove(datum):
+            newMove = move_gen(move_data)
+            allMoves.addMove(newMove)
+            if DEBUG: print "Added " + ("nothing" if data_len == 0 else move_name) + ", now parsing", datum
+            move_name = datum
+            move_data = [datum]
+        else:
+            move_data.append(datum)
+
+    #Capture the last move of the array
+    newMove = move_gen(move_data)
+    allMoves.addMove(newMove)
+    
+    move_data = []
+    move_name = ""
+    for datum in aerial_frame_data:
+        # Iterates through frame data, and once a move name has been found,
+        # starts collecting the following data until
+        # another move name has been found. The collected move data
+        # is then put into an appropriate Move object, based on
+        # amount of data collected and a check of the move type
+        if isMove(datum):
+            newMove = move_gen(move_data)
+            allMoves.addMove(newMove)
+            if DEBUG: print "Added " + "nothing" if data_len == 0 else move_name + ", now parsing", datum
+            move_name = datum
+            move_data = [datum]
+        else:
+            move_data.append(datum)
+
+    #Capture the last move of the array
+    newMove = move_gen(move_data)
+    allMoves.addMove(newMove)
+    
+    move_data = []
+    move_name = ""
+    for idx in range(len(special_frame_data)):
+        # Iterates through frame data, and once a move name has been found,
+        # starts collecting the following data until
+        # another move name has been found. The collected move data
+        # is then put into an appropriate Move object, based on
+        # amount of data collected and a check of the move type
+        datum = special_frame_data[idx]
+        if idx % 7 == 0:
             newMove = []
             data_len = len(move_data)
-            if data_len == 0: print "Starting data parsing for " + character_name + "..."
-            elif data_len == 3 and isGrab(move_name): newMove = Grab(*move_data)
-            elif (data_len == 3 and isDodge(move_name)) or data_len == 4: newMove = Dodge(*move_data)
-            elif data_len == 6 and isThrow(move_name): newMove = Throw(*move_data)
-            elif data_len == 7 and isGroundMove(move_name): newMove = GroundMove(*move_data)
-            elif data_len == 9 and isAerial(move_name): newMove = Aerial(*move_data)
+            if data_len == 0: pass
+            elif data_len == 7: newMove = Special(*move_data)
             else:
                 raise ValueError("ERROR!!!! invalid amount of frame data for " +
                                  move_name +
@@ -344,6 +453,11 @@ def parse_frame_data(character_name, frame_data, moveset):
             move_data = [datum]
         else:
             move_data.append(datum)
+            
+    #Capture the last move of the array
+    newMove = Special(*move_data)
+    allMoves.addMove(newMove)
+    
     return allMoves
 
 def trim_frame_data(raw_frame_data):
@@ -364,8 +478,12 @@ def trim_frame_data(raw_frame_data):
               'Weight Dependent?', 'Weight Dependant?', 'Base Dmg. (+SD)',
               'Useless Tractor Beams']
     new_frame_data = []
-    for move in raw_frame_data:
-        if move not in terms_to_remove: stripped_data += [move.encode('utf-8')]
+    stripped_data = []
+    for table in raw_frame_data:
+        stripped_table = []
+        for move in table:
+            if move not in terms_to_remove: stripped_table += [move.encode('utf-8')]
+        stripped_data += [stripped_table]
 
     # The following for loop is for replacing the
     # empty frame data for some characters' attacks
@@ -373,27 +491,49 @@ def trim_frame_data(raw_frame_data):
     # stays consistent
     replace_empty = False
     frame_data_counter = 0
-    for datum in stripped_data:
+    new_ground_frame_data = []
+    for datum in stripped_data[0]:
         if isGroundMove(datum):
             replace_empty = True
             frame_data_counter = 6
-        elif isAerial(datum):
-            replace_empty = True
-            frame_data_counter = 8
         elif isMove(datum):
             replace_empty = False
         elif replace_empty:
             frame_data_counter -= 1
             if frame_data_counter < 0:
                 replace_empty = False
-        new_frame_data.append("?" if replace_empty and datum == "" else datum)
-    new_frame_data = filter(None, new_frame_data) #Remove all remaining empty strings
+        new_ground_frame_data.append("?" if replace_empty and datum == "" else datum)
+    new_frame_data += [filter(None, new_ground_frame_data)] #Remove all remaining empty strings
+
+    new_frame_data += [map(lambda datum: "?" if datum == "" else datum, stripped_data[1])]
+    new_frame_data += [map(lambda datum: "?" if datum == "" else datum, stripped_data[2])]
     if DEBUG:
         print "PRINTING CLEAN STRIPPED DATA..."
         print new_frame_data
         print "\n\n\n"
     
     return new_frame_data
+
+def trim_non_move_name(raw_moveset):
+    ''' Takes scraped HTML page, and strips non-move words from page '''
+    # Strip non-move words from scraped page
+    terms_to_remove = ["Statistic", "Value/Rank", "Attacks",
+              'Hitbox Active', 'FAF', 'Angle',
+              'BKB/WBKB', 'KBG', 'BKB', 'Base Dmg.',
+              'Miscellaneous', 'Intangibility', 'Notes',
+              'Landing Lag', 'Autocancel', 'Grabs', 'Throws',
+              'Weight Dependent?', 'Weight Dependant?', 'Base Dmg. (+SD)',
+              'Useless Tractor Beams']
+    clean_moveset = []
+    for move in raw_moveset:
+        if move not in terms_to_remove: clean_moveset += [move.encode('utf-8')]
+        
+    if DEBUG:
+        print "PRINTING CLEAN MOVESET..."
+        print clean_moveset
+        print "\n\n\n"
+    
+    return clean_moveset
 
 def character_sort(characters):
     characters.sort()
