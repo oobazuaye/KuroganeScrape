@@ -3,7 +3,7 @@ from lxml import html
 import requests
 DEBUG = False
 DOWNLOAD = False
-OFFLINE_MODE = False
+OFFLINE_MODE = True
 characters = []
 pages = []
 
@@ -407,6 +407,7 @@ def parse_frame_data(character_name, frame_data, moveset):
     
     move_data = []
     move_name = ""
+    print aerial_frame_data
     for datum in aerial_frame_data:
         # Iterates through frame data, and once a move name has been found,
         # starts collecting the following data until
@@ -502,11 +503,11 @@ def trim_frame_data(raw_frame_data):
             frame_data_counter -= 1
             if frame_data_counter < 0:
                 replace_empty = False
-        new_ground_frame_data.append("?" if replace_empty and datum == "" else datum)
+        new_ground_frame_data.append("?" if replace_empty and datum == "" else datum.replace("\n", ""))
     new_frame_data += [filter(None, new_ground_frame_data)] #Remove all remaining empty strings
 
-    new_frame_data += [map(lambda datum: "?" if datum == "" else datum, stripped_data[1])]
-    new_frame_data += [map(lambda datum: "?" if datum == "" else datum, stripped_data[2])]
+    new_frame_data += [map(lambda datum: "?" if datum == "" else datum.replace("\n", ""), stripped_data[1])]
+    new_frame_data += [map(lambda datum: "?" if datum == "" else datum.replace("\n", ""), stripped_data[2])]
     if DEBUG:
         print "PRINTING CLEAN STRIPPED DATA..."
         print new_frame_data
