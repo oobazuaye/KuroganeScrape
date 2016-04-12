@@ -11,8 +11,10 @@ moveset_arrays = ["Jabs", "Dash Attacks", "Tilts", "Smashes", "Aerials",
                   "Grabs", "Throws", "Dodges"]
 all_groundmove_types = ["Jab", "Attack", "tilt", "smash"]
 all_move_types = ["Jab", "tilt", "smash", "air", "Attack", "Dash", "Rapid", "Grab", "throw", "dodge", "Roll"]
-
+all_data_types = ["Hitbox", "FAF", "Base Damage", "Angle", "BKB/WBKB", "KBG",
+                  "Landing Lag", "Autocancel", "Weight Dependent?", "Intangibility", "Notes"]
 #TODO: They spelled "dependent" wrong on Kirby's page...
+#TODO: 1.1.4 data includes Item Toss for Bowser & Bowser Jr., download and dump 1.1.5 soon
 
 #Simple class structures for storing frame data for moves
 
@@ -29,7 +31,13 @@ class Move:
         self.autocancel = autocancel
         self.weight = weight
         self.intangibility = intangibility
-        self.notes = notes        
+        self.notes = notes
+
+    def moveArray(self):
+        return [self.hitbox, self.faf, self.base_dmg,
+                self.angle, self.bkb_wbkb, self.kbg,
+                self.landing_lag, self.autocancel, self.weight,
+                self.intangibility, self.notes]
 
     def __str__(self):
         return  "      " + self.name + \
@@ -322,7 +330,7 @@ def get_frame_data(char_url):
     
     if DEBUG:
         for x in frame_data: print x
-    moveset = root.xpath('//table[position()!=1]//th')
+    moveset = root.xpath('//table[position()>1 and position()<5]//th')
     moveset = [element.text_content() for element in moveset]
     clean_moveset = trim_non_move_name(moveset)
     return clean_moveset, clean_frame_data
@@ -407,7 +415,6 @@ def parse_frame_data(character_name, frame_data, moveset):
     
     move_data = []
     move_name = ""
-    print aerial_frame_data
     for datum in aerial_frame_data:
         # Iterates through frame data, and once a move name has been found,
         # starts collecting the following data until
