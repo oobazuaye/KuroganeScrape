@@ -1,5 +1,6 @@
 import Tix as tk
 import PyScrape
+from PIL import Image, ImageTk
 TITLE_FONT = ("Helvetica", 32, "bold")
 TITLE_FONT_2 = ("Helvetica", 18, "bold")
 LABEL_FONT = ("Fixedsys", 12, "bold")
@@ -16,9 +17,20 @@ class ScrapeGUI:
 class StartPage(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
+        centerWindow(parent, 500,560)
         self.parent = parent
-        label = tk.Label(self, text="Kurogane Scraper v1.0.0", font=TITLE_FONT)
-        label.pack(side="top", fill="x", pady=10)
+        bg_color = "white"
+        self.config(bg=bg_color)
+        kurogane_logo_image = ImageTk.PhotoImage(Image.open("images/app/kh_logo.png"))
+        smash_logo_image = ImageTk.PhotoImage(Image.open("images/app/smash_logo.png"))
+        kurogane_logo = tk.Label(self, image=kurogane_logo_image, bg=bg_color)
+        kurogane_logo.pack(side="top")
+        kurogane_logo.image = kurogane_logo_image
+        smash_logo = tk.Label(self, image=smash_logo_image, bg=bg_color)
+        smash_logo.pack(side="top")
+        smash_logo.image = smash_logo_image
+        title_label = tk.Label(self, text="Kurogane Scraper v1.0.0", font=TITLE_FONT, bg=bg_color)
+        title_label.pack(side="top", fill="x", pady=10)
         begin_online = tk.Button(self, text="Begin in Online Mode (scrape data from website)", command=lambda: self.select_character("online"))
         begin_offline = tk.Button(self, text="Begin in Offline Mode (use stored data)", command=lambda: self.select_character("offline"))
         begin_online.pack()
@@ -38,6 +50,7 @@ class StartPage(tk.Frame):
 class CharacterSelect(tk.Frame):
     def __init__(self, parent, prev_page):
         tk.Frame.__init__(self, parent)
+        centerWindow(parent, 680, 800)
         self.parent = parent
         self.prev_page = prev_page
         addScrollBar(self)
@@ -46,14 +59,16 @@ class CharacterSelect(tk.Frame):
         self.def_color = parent.cget("bg")
         self.selected_characters = []
         self.character_buttons = {}
-        label = tk.Label(self.frame, text="Select 2 characters to compare", font=TITLE_FONT)
-        label.grid(row=0, column=2, sticky="nsew", pady=20)
+        label = tk.Label(self.frame, text="Select Characters to Compare", font=TITLE_FONT)
+        label.grid(row=0, column=0, columnspan=5, sticky="nsew", pady=20, padx=60)
         row = 1
         col = 0
         for character in self.characters:
+            photo = ImageTk.PhotoImage(Image.open("images/app/" + character + ".png"))
             button = tk.Button(self.frame, text=character,
                                command=lambda char = character:
-                               self.addchar(char))
+                               self.addchar(char), image=photo)
+            button.image = photo
             self.character_buttons[character] = button
             button.grid(row=row, column=col, sticky="nsew", padx=10, pady=5)
             col += 1
@@ -63,11 +78,11 @@ class CharacterSelect(tk.Frame):
                 
         
         submitbutton = tk.Button(self.frame, text="Compare Selected Characters",
-                                 command=self.submit)
-        submitbutton.grid(row=row+1, column=2, columnspan=3, sticky="nsew", pady=20)
+                                 command=self.submit, bg="green")
+        submitbutton.grid(row=row+1, column=1, columnspan=3, sticky="nsew", pady=20)
         
-        backbutton = tk.Button(self.frame, text="Back", command=lambda: back(self))
-        backbutton.grid(row=row+2, column=0, sticky="nsew", pady=5)
+        backbutton = tk.Button(self.frame, text="Back", command=lambda: back(self), bg="orange")
+        backbutton.grid(row=row+2, column=0, sticky="nsew", pady=5, padx=40)
 
     def addchar(self, character):
         if character not in self.selected_characters:
@@ -93,7 +108,8 @@ class CharacterSelect(tk.Frame):
 
 class MoveSelect(tk.Frame):
     def __init__(self, parent, prev_page, movesets):
-        tk.Frame.__init__(self, parent)  
+        tk.Frame.__init__(self, parent)
+        parent.minsize(640,640)
         self.parent = parent
         self.prev_page = prev_page
         addScrollBar(self)
@@ -226,7 +242,16 @@ def back(parent):
 def expandContainer(container):
     container.grid_columnconfigure(0, weight=1)
     container.grid_rowconfigure(0, weight=1)
-        
+
+def centerWindow(root, height, width):
+    # get screen width and height
+    ws = root.winfo_screenwidth() # width of the screen
+    hs = root.winfo_screenheight() # height of the screen
+    # calculate x and y coordinates for the Tk root window
+    x = (ws/2) - (width/2)
+    y = (hs/2) - (height/2)
+    root.geometry('%dx%d+%d+%d' % (width, height, x, y))
+
 def Run():
     root = tk.Tk()
     app = ScrapeGUI(root)
