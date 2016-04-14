@@ -321,20 +321,22 @@ def get_frame_data(char_url):
     # XPath to get all move names and data entries in tables from
     # 2nd and 3rd tables; ignores the statistic table and special moves table
     frame_data = []
+    clean_moveset = []
     for table_num in xrange(2,5):
         frame_table = root.xpath('//table[position()=' + str(table_num) + ']//th | ' +
                                 '//table[position()=' + str(table_num) + ']//td')
         frame_table = [element.text_content() for element in frame_table]
         frame_data.append(frame_table)
+
+        move_table = root.xpath('//table[position()=' + str(table_num) + ']//th')
+        move_table = [element.text_content() for element in move_table]
+        clean_moveset.append(trim_non_move_name(move_table))
     clean_frame_data = trim_frame_data(frame_data)
     
     if DEBUG:
         for x in frame_data: print x
-    moveset = root.xpath('//table[position()>1 and position()<5]//th')
-    moveset = [element.text_content() for element in moveset]
-    clean_moveset = trim_non_move_name(moveset)
+
     return clean_moveset, clean_frame_data
-    #return clean_frame_data
 
 def isMove(datum):
     for move in all_move_types:
