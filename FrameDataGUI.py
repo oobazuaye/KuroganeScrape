@@ -56,7 +56,6 @@ class CharacterSelect(tk.Frame):
         addScrollBar(self)
         expandContainer(self)
         self.characters, _ = PyScrape.get_pages()
-        self.def_color = parent.cget("bg")
         self.selected_characters = []
         self.character_buttons = {}
         label = tk.Label(self.frame, text="Select Characters to Compare", font=TITLE_FONT)
@@ -64,10 +63,11 @@ class CharacterSelect(tk.Frame):
         row = 1
         col = 0
         for character in self.characters:
-            photo = ImageTk.PhotoImage(Image.open("images/app/" + character + ".png"))
+            photo = ImageTk.PhotoImage(Image.open("images/app/" + character + ".png").resize((100, 100), Image.ANTIALIAS))
             button = tk.Button(self.frame, text=character,
                                command=lambda char = character:
-                               self.addchar(char), image=photo)
+                               self.addchar(char), image=photo,
+                               bg="steel blue")
             button.image = photo
             self.character_buttons[character] = button
             button.grid(row=row, column=col, sticky="nsew", padx=10, pady=5)
@@ -90,7 +90,7 @@ class CharacterSelect(tk.Frame):
             self.character_buttons[character].config(relief=tk.SUNKEN, bg="red")            
         else:
             self.selected_characters.remove(character)
-            self.character_buttons[character].config(relief=tk.RAISED, bg = self.def_color)
+            self.character_buttons[character].config(relief=tk.RAISED, bg="steel blue")
         
     def submit(self):
         if len(self.selected_characters ) < 1:
@@ -114,7 +114,6 @@ class MoveSelect(tk.Frame):
         self.prev_page = prev_page
         addScrollBar(self)
         expandContainer(self)
-        self.def_color = parent.cget("bg")
         self.selected_moves = []
         self.move_buttons = {}
         
@@ -123,18 +122,26 @@ class MoveSelect(tk.Frame):
         for moveset_obj in movesets:
             col_start += 3
             col = col_start
-            char_label = tk.Label(self.frame, text=moveset_obj.character_name, font=TITLE_FONT_2)
+            photo = ImageTk.PhotoImage(Image.open("images/app/" + moveset_obj.character_name + ".png"))
+            char_label = tk.Label(self.frame, image=photo, font=TITLE_FONT_2)
             char_label.grid(row=1, column=col, columnspan=2, sticky="nsew", pady=20)
+            char_label.image=photo
             row = 2
-            for move in moveset_obj.moveset:
-                button = tk.Button(self.frame, text=move,
-                                   command=lambda obj=moveset_obj, mv=move:self.addmove(obj, mv))
-                self.move_buttons[(moveset_obj.character_name, move)] = button
-                button.grid(row=row, column=col, sticky="nsew", padx=10, pady=5)
-                col += 1
-                if col - col_start == 2:
-                    row += 1
-                    col = col_start
+            colors = ["sea green", "purple", "steel blue"]
+            color_idx = 0
+            for moveset_group in moveset_obj.moveset:
+                color = colors[color_idx]
+                for move in moveset_group:
+                    button = tk.Button(self.frame, text=move,
+                                       command=lambda obj=moveset_obj, mv=move:self.addmove(obj, mv),
+                                       bg="white", fg = color)
+                    self.move_buttons[(moveset_obj.character_name, move)] = button
+                    button.grid(row=row, column=col, sticky="nsew", padx=10, pady=5)
+                    col += 1
+                    if col - col_start == 2:
+                        row += 1
+                        col = col_start
+                color_idx += 1
             bottom_row = max(row, bottom_row)
 
         label = tk.Label(self.frame, text="Select Moves to Compare", font=TITLE_FONT)
@@ -155,7 +162,7 @@ class MoveSelect(tk.Frame):
             self.move_buttons[button_tuple].config(relief=tk.SUNKEN, bg="red")            
         else:
             self.selected_moves.remove(char_move_tuple)
-            self.move_buttons[button_tuple].config(relief=tk.RAISED, bg = self.def_color)
+            self.move_buttons[button_tuple].config(relief=tk.RAISED, bg="white")
                 
     def submit(self):
         if len(self.selected_moves) < 1:
