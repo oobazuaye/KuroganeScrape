@@ -29,7 +29,7 @@ class StartPage(tk.Frame):
         smash_logo = tk.Label(self, image=smash_logo_image, bg=bg_color)
         smash_logo.pack(side="top")
         smash_logo.image = smash_logo_image
-        title_label = tk.Label(self, text="Kurogane Scraper v1.0.0", font=TITLE_FONT, bg=bg_color)
+        title_label = tk.Label(self, text="Kurogane Scraper v1.0.0", font=TITLE_FONT, bg=bg_color, fg="blue")
         title_label.pack(side="top", fill="x", pady=10)
         begin_online = tk.Button(self, text="Begin in Online Mode (scrape data from website)", command=lambda: self.select_character("online"))
         begin_offline = tk.Button(self, text="Begin in Offline Mode (use stored data)", command=lambda: self.select_character("offline"))
@@ -67,7 +67,8 @@ class CharacterSelect(tk.Frame):
             button = tk.Button(self.frame, text=character,
                                command=lambda char = character:
                                self.addchar(char), image=photo,
-                               bg="steel blue")
+                               bg="steel blue",
+                               compound="bottom")
             button.image = photo
             self.character_buttons[character] = button
             button.grid(row=row, column=col, sticky="nsew", padx=10, pady=5)
@@ -76,18 +77,13 @@ class CharacterSelect(tk.Frame):
                 row += 1
                 col = 0
                 
-        
-        submitbutton = tk.Button(self.frame, text="Compare Selected Characters",
-                                 command=self.submit, bg="green")
-        submitbutton.grid(row=row+1, column=1, columnspan=3, sticky="nsew", pady=20)
-        
-        backbutton = tk.Button(self.frame, text="Back", command=lambda: back(self), bg="orange")
-        backbutton.grid(row=row+2, column=0, sticky="nsew", pady=5, padx=40)
+        addCompareButton(self, "Compare Selected Characters", row)
+        addBackButton(self, row)
 
     def addchar(self, character):
         if character not in self.selected_characters:
             self.selected_characters.append(character)
-            self.character_buttons[character].config(relief=tk.SUNKEN, bg="red")            
+            self.character_buttons[character].config(relief=tk.SUNKEN, bg="red", fg="yellow")            
         else:
             self.selected_characters.remove(character)
             self.character_buttons[character].config(relief=tk.RAISED, bg="steel blue")
@@ -147,12 +143,8 @@ class MoveSelect(tk.Frame):
         label = tk.Label(self.frame, text="Select Moves to Compare", font=TITLE_FONT)
         label.grid(row=0, column=col_start / 2, columnspan=5, sticky="nsew", pady=20)
         
-        submitbutton = tk.Button(self.frame, text="Compare Selected Moves",
-                                 command=self.submit)
-        submitbutton.grid(row=bottom_row+1, column=2, stick="nsew", pady=20)
-        
-        backbutton = tk.Button(self.frame, text="Back", command=lambda: back(self))
-        backbutton.grid(row=bottom_row+2, column=0, sticky="nsew", pady=5)
+        addCompareButton(self, "Compare Selected Moves", bottom_row)
+        addBackButton(self, bottom_row)
 
     def addmove(self, char_moveset, move):
         char_move_tuple = (char_moveset, move)
@@ -201,11 +193,8 @@ class DataDisplay(tk.Frame):
         label = tk.Label(self.frame, text="Moveset Frame Data Comparison", font=TITLE_FONT)
         label.grid(row=0, column=col / 2, columnspan=5, sticky="nsew", pady=20)
         
-        restartbutton = tk.Button(self.frame, text="Start over",
-                                 command=self.restart)
-        restartbutton.grid(row=row+1, column=2, stick="nsew", pady=20)        
-        backbutton = tk.Button(self.frame, text="Back", command=lambda: back(self))
-        backbutton.grid(row=row+3, column=0, sticky="nsew", pady=5)
+        addCompareButton(self, "Start Over", row)
+        addBackButton(self, row)
 
     def displayMove(self, move_obj, character_name, col):
         row = 5
@@ -221,10 +210,11 @@ class DataDisplay(tk.Frame):
             entry.config(state='readonly')
             row += 1
             
-    def restart(self):
+    def submit(self):
         self.grid_forget()
         self.destroy()
         self.prev_page.prev_page.prev_page.grid()
+        #centerWindow(self.parent, 500,560)
     
 def addScrollBar(parent):
     parent.canvas = tk.Canvas(parent, borderwidth=0)
@@ -233,6 +223,7 @@ def addScrollBar(parent):
     parent.vscrollbar = tk.Scrollbar(parent, orient="vertical", command=parent.canvas.yview)
     parent.hscrollbar = tk.Scrollbar(parent, orient="horizontal", command=parent.canvas.xview)
     parent.canvas.configure(yscrollcommand=parent.vscrollbar.set, xscrollcommand=parent.hscrollbar.set)
+    parent.canvas.bind_all("<MouseWheel>", lambda event: parent.canvas.yview_scroll(-1*(event.delta/120), "units"))
 
     parent.vscrollbar.grid(row=0, column=MAX_COLUMN, sticky="nsew")
     parent.hscrollbar.grid(row=MAX_ROW, column=0, sticky="nsew")
@@ -240,7 +231,16 @@ def addScrollBar(parent):
     parent.canvas.create_window(0, 0, window=parent.frame, anchor="nw", tags="parent.frame")
     parent.canvas.grid(row=0, column=0, sticky="nsew")
     parent.frame.bind("<Configure>", lambda event: parent.canvas.configure(scrollregion=parent.canvas.bbox("all")))
-
+    
+def addCompareButton(parent, labeltext, row):
+    submitbutton = tk.Button(parent.frame, text=labeltext,
+                             command=parent.submit, bg="green")
+    submitbutton.grid(row=row+1, column=1, columnspan=3, sticky="nsew", pady=20)
+    
+def addBackButton(parent, row):
+    backbutton = tk.Button(parent.frame, text="Back", command=lambda: back(parent), bg="orange", width=10)
+    backbutton.grid(row=row+2, column=0, columnspan=2, sticky="nsew", pady=5)
+    
 def back(parent):
     parent.grid_forget()
     parent.destroy()
