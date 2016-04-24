@@ -77,7 +77,7 @@ class CharacterSelect(tk.Frame):
                 row += 1
                 col = 0
                 
-        addCompareButton(self, "Compare Selected Characters", row)
+        addCompareButton(self, "COMPARE SELECTED CHARACTERS", row, 4)
         addBackButton(self, row)
 
     def addchar(self, character):
@@ -113,7 +113,7 @@ class MoveSelect(tk.Frame):
         self.selected_moves = []
         self.move_buttons = {}
         
-        col_start = -2
+        col_start = -3
         bottom_row = 2
         for moveset_obj in movesets:
             col_start += 3
@@ -143,7 +143,7 @@ class MoveSelect(tk.Frame):
         label = tk.Label(self.frame, text="Select Moves to Compare", font=TITLE_FONT)
         label.grid(row=0, column=col_start / 2, columnspan=5, sticky="nsew", pady=20)
         
-        addCompareButton(self, "Compare Selected Moves", bottom_row)
+        addCompareButton(self, "COMPARE SELECTED MOVES", bottom_row, col_start + 1)
         addBackButton(self, bottom_row)
 
     def addmove(self, char_moveset, move):
@@ -175,15 +175,14 @@ class DataDisplay(tk.Frame):
         expandContainer(self)
         self.def_color = parent.cget("bg")
 
-        
         row = 5
         
         for datum in PyScrape.all_data_types:
             datum_label = tk.Label(self.frame, text=datum, font=LABEL_FONT)
-            datum_label.grid(row=row, column=1, sticky="nsew", padx=30)
+            datum_label.grid(row=row, column=0, sticky="nsew", padx=30)
             row += 1
 
-        col = 2
+        col = 1
         for moveset_obj, move_name in selected_moves:
             move_obj = moveset_obj.move_dict[move_name]
             char_name = moveset_obj.character_name
@@ -191,9 +190,9 @@ class DataDisplay(tk.Frame):
             col += 1
             
         label = tk.Label(self.frame, text="Moveset Frame Data Comparison", font=TITLE_FONT)
-        label.grid(row=0, column=col / 2, columnspan=5, sticky="nsew", pady=20)
+        label.grid(row=0, column=max(0, (col - 2) / 2), columnspan=3, sticky="nsew", pady=20)
         
-        addCompareButton(self, "Start Over", row)
+        addCompareButton(self, "START OVER", row, col - 1)
         addBackButton(self, row)
 
     def displayMove(self, move_obj, character_name, col):
@@ -232,14 +231,15 @@ def addScrollBar(parent):
     parent.canvas.grid(row=0, column=0, sticky="nsew")
     parent.frame.bind("<Configure>", lambda event: parent.canvas.configure(scrollregion=parent.canvas.bbox("all")))
     
-def addCompareButton(parent, labeltext, row):
+def addCompareButton(parent, labeltext, row, last_col):
     submitbutton = tk.Button(parent.frame, text=labeltext,
-                             command=parent.submit, bg="green")
-    submitbutton.grid(row=row+1, column=1, columnspan=3, sticky="nsew", pady=20)
+                             command=parent.submit, bg="green",
+                             font = LABEL_FONT)
+    submitbutton.grid(row=row+1, column=1, columnspan=max(1, last_col-1), sticky="nsew", pady=20)
     
 def addBackButton(parent, row):
-    backbutton = tk.Button(parent.frame, text="Back", command=lambda: back(parent), bg="orange", width=10)
-    backbutton.grid(row=row+2, column=0, columnspan=2, sticky="nsew", pady=5)
+    backbutton = tk.Button(parent.frame, text="BACK", command=lambda: back(parent), bg="orange", width=10)
+    backbutton.grid(row=row+2, column=0, sticky="w", pady=5)
     
 def back(parent):
     parent.grid_forget()
@@ -261,6 +261,7 @@ def centerWindow(root, height, width):
 
 def Run():
     root = tk.Tk()
+    root.wm_title("Kurogane Scraper v1.0.0")
     app = ScrapeGUI(root)
     root.mainloop()
 
